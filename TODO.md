@@ -40,5 +40,5 @@
 - [x] Update backend/server.js to use process.env for admin token
 - [x] Suggest adding environment variables in Vercel dashboard for backend
 - [x] Recommend running migrations.sql manually on the database
-- [ ] Test local builds and redeploy after fixes
+- [x] Test local builds and redeploy after fixes
 - [x] Fix git submodule issue for Netlify deployment
