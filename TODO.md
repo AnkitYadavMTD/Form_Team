@@ -33,3 +33,12 @@
 - [x] Test admin dashboard and export
 - [x] Deploy backend to Render
 - [x] Deploy frontend to Vercel
+
+## Deployment Fixes
+- [x] Check frontend/vite.config.js for any deployment issues
+- [x] Update backend/db.js to use process.env for database connection string
+- [x] Update backend/server.js to use process.env for admin token
+- [x] Suggest adding environment variables in Vercel dashboard for backend
+- [x] Recommend running migrations.sql manually on the database
+- [ ] Test local builds and redeploy after fixes
+- [x] Fix git submodule issue for Netlify deployment
