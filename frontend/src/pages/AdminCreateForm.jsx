@@ -295,30 +295,20 @@ function AdminCreateForm() {
           </div>
 
           <div className="form-group">
-            <label>Choose a Template (Optional)</label>
-            <div className="template-buttons">
+            <label htmlFor="templateSelect">Choose a Template (Optional)</label>
+            <select
+              id="templateSelect"
+              value={selectedTemplate}
+              onChange={(e) => handleTemplateSelect(e.target.value)}
+              className="form-input"
+            >
+              <option value="">Custom (No Template)</option>
               {Object.entries(formTemplates).map(([key, template]) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={`template-btn ${
-                    selectedTemplate === key ? "active" : ""
-                  }`}
-                  onClick={() => handleTemplateSelect(key)}
-                >
+                <option key={key} value={key}>
                   {template.name}
-                </button>
+                </option>
               ))}
-              <button
-                type="button"
-                className={`template-btn ${
-                  selectedTemplate === "" ? "active" : ""
-                }`}
-                onClick={() => handleTemplateSelect("")}
-              >
-                Custom (No Template)
-              </button>
-            </div>
+            </select>
             <small className="form-help">
               Select a template to pre-populate fields, or choose Custom to
               start from scratch
