@@ -8,7 +8,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
-  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'table'
+  const [viewMode, setViewMode] = useState("table"); // 'grid' or 'table'
 
   useEffect(() => {
     fetchForms();
@@ -151,13 +151,6 @@ function AdminDashboard() {
                   title="Table View"
                 >
                   ⊟
-                </button>
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
-                  title="Grid View"
-                >
-                  ⊞
                 </button>
               </div>
             </div>
