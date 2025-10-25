@@ -22,13 +22,37 @@ const adminAuth = (req, res, next) => {
   next();
 };
 
+// Generate unique form ID
+function generateFormId() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < 10; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 // Create new form (admin only)
 app.post("/api/forms", adminAuth, async (req, res) => {
   const { title, redirect_url, fields } = req.body;
   try {
+    let formId;
+    let isUnique = false;
+
+    // Generate unique ID
+    while (!isUnique) {
+      formId = generateFormId();
+      const existing = await pool.query("SELECT id FROM forms WHERE id = $1", [
+        formId,
+      ]);
+      if (existing.rows.length === 0) {
+        isUnique = true;
+      }
+    }
+
     const result = await pool.query(
-      "INSERT INTO forms (title, redirect_url, fields) VALUES ($1, $2, $3) RETURNING *",
-      [title, redirect_url, JSON.stringify(fields || [])]
+      "INSERT INTO forms (id, title, redirect_url, fields) VALUES ($1, $2, $3, $4) RETURNING *",
+      [formId, title, redirect_url, JSON.stringify(fields || [])]
     );
     res.json(result.rows[0]);
   } catch (err) {

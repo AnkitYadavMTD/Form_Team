@@ -1,6 +1,6 @@
 -- Create forms table
 CREATE TABLE IF NOT EXISTS forms (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(10) PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     redirect_url TEXT NOT NULL,
     fields JSONB DEFAULT '[]'::jsonb,
