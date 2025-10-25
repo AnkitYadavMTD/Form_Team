@@ -79,7 +79,7 @@ function PublicForm() {
       <div className="public-form-container">
         <div className="form-card">
           <div className="error-message">
-            <h2>Error</h2>
+            <h2>🚫 Error</h2>
             <p>{error}</p>
           </div>
         </div>
@@ -91,6 +91,7 @@ function PublicForm() {
       <div className="public-form-container">
         <div className="form-card">
           <div className="loading-message">
+            <div className="loading-spinner"></div>
             <h2>Loading form...</h2>
           </div>
         </div>
@@ -101,88 +102,144 @@ function PublicForm() {
     <div className="public-form-container">
       <div className="form-card">
         <div className="form-header">
+          <div className="header-icon">📋</div>
           <h2>{formData.title}</h2>
+          <p className="form-subtitle">Please fill out all required fields</p>
         </div>
 
         <div className="form-body">
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Name *</label>
-              <input
-                type="text"
-                className="form-input"
-                value={responses.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                placeholder="Enter your full name"
-                required
-              />
+          <form onSubmit={handleSubmit} className="form-grid">
+            {/* Personal Information Section */}
+            <div className="form-section">
+              <h3 className="section-title">
+                <span className="section-icon">👤</span>
+                Personal Information
+              </h3>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">
+                    <span className="label-icon">📝</span>
+                    Full Name <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={responses.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">
+                    <span className="label-icon">📞</span>
+                    Phone Number <span className="required">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    value={responses.number}
+                    onChange={(e) =>
+                      handleInputChange("number", e.target.value)
+                    }
+                    placeholder="Enter your phone number"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  <span className="label-icon">🆔</span>
+                  PAN Number <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={responses.pan}
+                  onChange={(e) => handleInputChange("pan", e.target.value)}
+                  placeholder="Enter your PAN number (e.g., ABCDE1234F)"
+                  required
+                  pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                  title="Please enter a valid PAN number (5 letters, 4 numbers, 1 letter)"
+                />
+              </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Number *</label>
-              <input
-                type="text"
-                className="form-input"
-                value={responses.number}
-                onChange={(e) => handleInputChange("number", e.target.value)}
-                placeholder="Enter your number"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">PAN *</label>
-              <input
-                type="text"
-                className="form-input"
-                value={responses.pan}
-                onChange={(e) => handleInputChange("pan", e.target.value)}
-                placeholder="Enter your PAN number"
-                required
-              />
-            </div>
-
+            {/* Dynamic Fields Section */}
             {formData.fields &&
               Array.isArray(formData.fields) &&
-              formData.fields.map((field, index) => {
-                const fieldKey = field.label.toLowerCase().replace(/\s+/g, "_");
-                return (
-                  <div key={index} className="form-group">
-                    <label className="form-label">
-                      {field.label} {field.required && "*"}
-                    </label>
-                    {field.type === "textarea" ? (
-                      <textarea
-                        className="form-input"
-                        value={responses[fieldKey] || ""}
-                        onChange={(e) =>
-                          handleInputChange(fieldKey, e.target.value)
-                        }
-                        placeholder={`Enter ${field.label.toLowerCase()}`}
-                        required={field.required}
-                        rows="4"
-                      />
-                    ) : (
-                      <input
-                        type={field.type || "text"}
-                        className="form-input"
-                        value={responses[fieldKey] || ""}
-                        onChange={(e) =>
-                          handleInputChange(fieldKey, e.target.value)
-                        }
-                        placeholder={`Enter ${field.label.toLowerCase()}`}
-                        required={field.required}
-                      />
-                    )}
-                  </div>
-                );
-              })}
+              formData.fields.length > 0 && (
+                <div className="form-section">
+                  <h3 className="section-title">
+                    <span className="section-icon">📋</span>
+                    Additional Information
+                  </h3>
 
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? "Submitting..." : "Submit Form"}
-            </button>
+                  {formData.fields.map((field, index) => {
+                    const fieldKey = field.label
+                      .toLowerCase()
+                      .replace(/\s+/g, "_");
+                    return (
+                      <div key={index} className="form-group">
+                        <label className="form-label">
+                          <span className="label-icon">
+                            {field.icon || "📝"}
+                          </span>
+                          {field.label}{" "}
+                          {field.required && (
+                            <span className="required">*</span>
+                          )}
+                        </label>
+                        {field.type === "textarea" ? (
+                          <textarea
+                            className="form-input form-textarea"
+                            value={responses[fieldKey] || ""}
+                            onChange={(e) =>
+                              handleInputChange(fieldKey, e.target.value)
+                            }
+                            placeholder={`Enter ${field.label.toLowerCase()}`}
+                            required={field.required}
+                            rows="4"
+                          />
+                        ) : (
+                          <input
+                            type={field.type || "text"}
+                            className="form-input"
+                            value={responses[fieldKey] || ""}
+                            onChange={(e) =>
+                              handleInputChange(fieldKey, e.target.value)
+                            }
+                            placeholder={`Enter ${field.label.toLowerCase()}`}
+                            required={field.required}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            {/* Submit Section */}
+            <div className="form-section submit-section">
+              <button type="submit" className="submit-btn" disabled={loading}>
+                <span className="btn-icon">{loading ? "⏳" : "🚀"}</span>
+                {loading ? "Submitting..." : "Submit Form"}
+              </button>
+              <p className="privacy-note">
+                <span className="privacy-icon">🔒</span>
+                Your information is secure and will be handled confidentially.
+              </p>
+            </div>
           </form>
         </div>
       </div>
