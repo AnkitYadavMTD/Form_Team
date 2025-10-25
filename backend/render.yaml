@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_y1Jc3VnhNGLP@ep-morning-snow-addlu7oy-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - key: ADMIN_TOKEN
+        value: admin-token-123
