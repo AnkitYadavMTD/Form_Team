@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import './AdminDashboard.css';
+import { useState, useEffect } from "react";
+import "./AdminDashboard.css";
 
 function AdminDashboard() {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'table'
 
   useEffect(() => {
     fetchForms();
@@ -17,19 +17,19 @@ function AdminDashboard() {
   const fetchForms = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/forms', {
+      const response = await fetch("/api/forms", {
         headers: {
-          'Authorization': 'admin-token-123'
-        }
+          Authorization: "admin-token-123",
+        },
       });
       if (response.ok) {
         const data = await response.json();
         setForms(data);
       } else {
-        setError('Failed to fetch forms');
+        setError("Failed to fetch forms");
       }
     } catch (err) {
-      setError('Error fetching forms');
+      setError("Error fetching forms");
       console.error(err);
     } finally {
       setLoading(false);
@@ -41,18 +41,18 @@ function AdminDashboard() {
     try {
       const response = await fetch(`/api/forms/${formId}/submissions`, {
         headers: {
-          'Authorization': 'admin-token-123'
-        }
+          Authorization: "admin-token-123",
+        },
       });
       if (response.ok) {
         const data = await response.json();
         setSubmissions(data);
-        setSelectedForm(forms.find(f => f.id === parseInt(formId)));
+        setSelectedForm(forms.find((f) => f.id === parseInt(formId)));
       } else {
-        setError('Failed to fetch submissions');
+        setError("Failed to fetch submissions");
       }
     } catch (err) {
-      setError('Error fetching submissions');
+      setError("Error fetching submissions");
       console.error(err);
     } finally {
       setLoading(false);
@@ -63,25 +63,25 @@ function AdminDashboard() {
     try {
       const response = await fetch(`/api/forms/${formId}/export`, {
         headers: {
-          'Authorization': 'admin-token-123'
-        }
+          Authorization: "admin-token-123",
+        },
       });
       if (response.ok) {
         // Create a blob from the response and download it
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'submissions.xlsx';
+        a.download = "submissions.xlsx";
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       } else {
-        setError('Failed to export submissions');
+        setError("Failed to export submissions");
       }
     } catch (err) {
-      setError('Error exporting submissions');
+      setError("Error exporting submissions");
       console.error(err);
     }
   };
@@ -93,8 +93,40 @@ function AdminDashboard() {
       setCopiedId(formId);
       setTimeout(() => setCopiedId(null), 2000); // Reset after 2 seconds
     } catch (err) {
-      console.error('Failed to copy link:', err);
-      setError('Failed to copy link to clipboard');
+      console.error("Failed to copy link:", err);
+      setError("Failed to copy link to clipboard");
+    }
+  };
+
+  const deleteForm = async (formId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this form? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/forms/${formId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "admin-token-123",
+        },
+      });
+      if (response.ok) {
+        // Refresh the forms list
+        await fetchForms();
+        setError("");
+      } else {
+        setError("Failed to delete form");
+      }
+    } catch (err) {
+      setError("Error deleting form");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,18 +146,18 @@ function AdminDashboard() {
               <h3>All Forms</h3>
               <div className="view-toggle">
                 <button
-                  onClick={() => setViewMode('grid')}
-                  className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                  title="Grid View"
-                >
-                  ⊞
-                </button>
-                <button
-                  onClick={() => setViewMode('table')}
-                  className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  onClick={() => setViewMode("table")}
+                  className={`view-btn ${viewMode === "table" ? "active" : ""}`}
                   title="Table View"
                 >
                   ⊟
+                </button>
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
+                  title="Grid View"
+                >
+                  ⊞
                 </button>
               </div>
             </div>
@@ -133,9 +165,9 @@ function AdminDashboard() {
 
           {loading ? (
             <div className="loading-message">Loading forms...</div>
-          ) : viewMode === 'grid' ? (
+          ) : viewMode === "grid" ? (
             <div className="forms-grid">
-              {forms.map(form => (
+              {forms.map((form) => (
                 <div key={form.id} className="form-card">
                   <h4 className="form-title">{form.title}</h4>
 
@@ -169,7 +201,9 @@ function AdminDashboard() {
                     </button>
                     <button
                       onClick={() => copyPublicLink(form.id)}
-                      className={`action-btn ${copiedId === form.id ? 'btn-copied' : 'btn-info'}`}
+                      className={`action-btn ${
+                        copiedId === form.id ? "btn-copied" : "btn-info"
+                      }`}
                     >
                       {copiedId === form.id ? (
                         <>
@@ -179,6 +213,12 @@ function AdminDashboard() {
                       ) : (
                         <>🔗 Copy Link</>
                       )}
+                    </button>
+                    <button
+                      onClick={() => deleteForm(form.id)}
+                      className="action-btn btn-danger"
+                    >
+                      🗑️ Delete Form
                     </button>
                   </div>
                 </div>
@@ -197,12 +237,14 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {forms.map(form => (
+                  {forms.map((form) => (
                     <tr key={form.id}>
                       <td>{form.id}</td>
                       <td>{form.title}</td>
                       <td className="url-cell">{form.redirect_url}</td>
-                      <td className="url-cell">{window.location.origin}/form/{form.id}</td>
+                      <td className="url-cell">
+                        {window.location.origin}/form/{form.id}
+                      </td>
                       <td>
                         <div className="table-actions">
                           <button
@@ -221,10 +263,21 @@ function AdminDashboard() {
                           </button>
                           <button
                             onClick={() => copyPublicLink(form.id)}
-                            className={`action-btn btn-small ${copiedId === form.id ? 'btn-copied' : 'btn-info'}`}
-                            title={copiedId === form.id ? 'Copied!' : 'Copy Link'}
+                            className={`action-btn btn-small ${
+                              copiedId === form.id ? "btn-copied" : "btn-info"
+                            }`}
+                            title={
+                              copiedId === form.id ? "Copied!" : "Copy Link"
+                            }
                           >
-                            {copiedId === form.id ? '✓' : '🔗'}
+                            {copiedId === form.id ? "✓" : "🔗"}
+                          </button>
+                          <button
+                            onClick={() => deleteForm(form.id)}
+                            className="action-btn btn-danger btn-small"
+                            title="Delete Form"
+                          >
+                            🗑️
                           </button>
                         </div>
                       </td>
@@ -246,7 +299,9 @@ function AdminDashboard() {
               {submissions.length === 0 ? (
                 <div className="no-submissions">
                   <div>No submissions yet</div>
-                  <small>Share the public link to start collecting responses</small>
+                  <small>
+                    Share the public link to start collecting responses
+                  </small>
                 </div>
               ) : (
                 <div className="submissions-table-container">
@@ -260,7 +315,7 @@ function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {submissions.map(sub => (
+                      {submissions.map((sub) => (
                         <tr key={sub.id}>
                           <td>{sub.name}</td>
                           <td>{sub.number}</td>
