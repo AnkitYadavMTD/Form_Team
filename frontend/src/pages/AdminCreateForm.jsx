@@ -19,13 +19,13 @@ function AdminCreateForm() {
     contact: {
       name: "Contact Form",
       fields: [
-        { id: 1, label: "Email", type: "email", required: true, icon: "📧" },
-        { id: 2, label: "Subject", type: "text", required: true, icon: "📄" },
+        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
+        { id: 2, label: "Subject", type: "text", required: false, icon: "📄" },
         {
           id: 3,
           label: "Message",
           type: "textarea",
-          required: true,
+          required: false,
           icon: "📝",
         },
       ],
@@ -33,8 +33,8 @@ function AdminCreateForm() {
     registration: {
       name: "Registration Form",
       fields: [
-        { id: 1, label: "Email", type: "email", required: true, icon: "📧" },
-        { id: 2, label: "Phone", type: "text", required: true, icon: "📞" },
+        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
+        { id: 2, label: "Phone", type: "text", required: false, icon: "📞" },
         {
           id: 3,
           label: "Date of Birth",
@@ -65,7 +65,7 @@ function AdminCreateForm() {
           id: 2,
           label: "Feedback",
           type: "textarea",
-          required: true,
+          required: false,
           icon: "📝",
         },
         {
@@ -84,7 +84,7 @@ function AdminCreateForm() {
           id: 1,
           label: "Overall Experience",
           type: "text",
-          required: true,
+          required: false,
           icon: "😊",
         },
         {
@@ -106,8 +106,8 @@ function AdminCreateForm() {
     event: {
       name: "Event Registration",
       fields: [
-        { id: 1, label: "Email", type: "email", required: true, icon: "📧" },
-        { id: 2, label: "Phone", type: "text", required: true, icon: "📞" },
+        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
+        { id: 2, label: "Phone", type: "text", required: false, icon: "📞" },
         {
           id: 3,
           label: "Organization",
@@ -127,8 +127,8 @@ function AdminCreateForm() {
     job: {
       name: "Job Application",
       fields: [
-        { id: 1, label: "Email", type: "email", required: true, icon: "📧" },
-        { id: 2, label: "Phone", type: "text", required: true, icon: "📞" },
+        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
+        { id: 2, label: "Phone", type: "text", required: false, icon: "📞" },
         {
           id: 3,
           label: "Experience (years)",
