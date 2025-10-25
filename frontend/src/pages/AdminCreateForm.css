@@ -190,6 +190,34 @@
   transform: translateY(-2px);
 }
 
+.required-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.required-toggle:hover {
+  background: #f8f9fa;
+  transform: scale(1.1);
+}
+
+.required-toggle.active {
+  color: #dc3545;
+}
+
+.required-toggle.active:hover {
+  background: #ffe6e6;
+}
+
 .field-icon {
   font-size: 1.5rem;
 }

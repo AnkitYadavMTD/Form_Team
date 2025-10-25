@@ -191,6 +191,14 @@ function AdminCreateForm() {
     }
   };
 
+  const toggleFieldRequired = (fieldId) => {
+    setCustomFields(
+      customFields.map((field) =>
+        field.id === fieldId ? { ...field, required: !field.required } : field
+      )
+    );
+  };
+
   const getFieldIcon = (type) => {
     switch (type) {
       case "email":
@@ -330,23 +338,18 @@ function AdminCreateForm() {
               </button>
             </div>
             <div className="fields-preview">
-              <div className="field-item">
-                <span className="field-icon">👤</span>
-                <span className="field-label">Name</span>
-                <span className="field-required">Required</span>
-              </div>
-              <div className="field-item">
-                <span className="field-icon">📞</span>
-                <span className="field-label">Number</span>
-                <span className="field-required">Required</span>
-              </div>
-              <div className="field-item">
-                <span className="field-icon">🆔</span>
-                <span className="field-label">PAN</span>
-                <span className="field-required">Required</span>
-              </div>
               {customFields.map((field) => (
                 <div key={field.id} className="field-item">
+                  <button
+                    type="button"
+                    className={`required-toggle ${
+                      field.required ? "active" : ""
+                    }`}
+                    onClick={() => toggleFieldRequired(field.id)}
+                    title={field.required ? "Make optional" : "Make required"}
+                  >
+                    {field.required ? "🔴" : "⚪"}
+                  </button>
                   <span className="field-icon">{field.icon}</span>
                   <span className="field-label">{field.label}</span>
                   {field.required && (
