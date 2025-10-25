@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import './PublicForm.css';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import "./PublicForm.css";
 
 function PublicForm() {
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
-  const [responses, setResponses] = useState({ name: '', number: '', pan: '' });
+  const [responses, setResponses] = useState({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchForm = async () => {
@@ -16,11 +16,24 @@ function PublicForm() {
         if (response.ok) {
           const data = await response.json();
           setFormData(data);
+          // Initialize responses with empty values for all fields
+          const initialResponses = {};
+          if (data.fields && Array.isArray(data.fields)) {
+            data.fields.forEach((field) => {
+              initialResponses[field.label.toLowerCase().replace(/\s+/g, "_")] =
+                "";
+            });
+          }
+          // Always include the default fields
+          initialResponses.name = "";
+          initialResponses.number = "";
+          initialResponses.pan = "";
+          setResponses(initialResponses);
         } else {
-          setError('Form not found');
+          setError("Form not found");
         }
       } catch (err) {
-        setError('Error loading form');
+        setError("Error loading form");
         console.error(err);
       }
     };
@@ -35,15 +48,15 @@ function PublicForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await fetch(`/api/forms/${id}/submit`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(responses)
+        body: JSON.stringify(responses),
       });
 
       if (response.ok) {
@@ -51,36 +64,38 @@ function PublicForm() {
         window.location.href = data.redirect_url;
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Submission failed');
+        setError(errorData.error || "Submission failed");
       }
     } catch (err) {
-      setError('Error submitting form');
+      setError("Error submitting form");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (error) return (
-    <div className="public-form-container">
-      <div className="form-card">
-        <div className="error-message">
-          <h2>Error</h2>
-          <p>{error}</p>
+  if (error)
+    return (
+      <div className="public-form-container">
+        <div className="form-card">
+          <div className="error-message">
+            <h2>Error</h2>
+            <p>{error}</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 
-  if (!formData) return (
-    <div className="public-form-container">
-      <div className="form-card">
-        <div className="loading-message">
-          <h2>Loading form...</h2>
+  if (!formData)
+    return (
+      <div className="public-form-container">
+        <div className="form-card">
+          <div className="loading-message">
+            <h2>Loading form...</h2>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 
   return (
     <div className="public-form-container">
@@ -99,7 +114,7 @@ function PublicForm() {
                 type="text"
                 className="form-input"
                 value={responses.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter your full name"
                 required
               />
@@ -111,7 +126,7 @@ function PublicForm() {
                 type="text"
                 className="form-input"
                 value={responses.number}
-                onChange={(e) => handleInputChange('number', e.target.value)}
+                onChange={(e) => handleInputChange("number", e.target.value)}
                 placeholder="Enter your number"
                 required
               />
@@ -123,18 +138,50 @@ function PublicForm() {
                 type="text"
                 className="form-input"
                 value={responses.pan}
-                onChange={(e) => handleInputChange('pan', e.target.value)}
+                onChange={(e) => handleInputChange("pan", e.target.value)}
                 placeholder="Enter your PAN number"
                 required
               />
             </div>
 
-            <button
-              type="submit"
-              className="submit-btn"
-              disabled={loading}
-            >
-              {loading ? 'Submitting...' : 'Submit Form'}
+            {formData.fields &&
+              Array.isArray(formData.fields) &&
+              formData.fields.map((field, index) => {
+                const fieldKey = field.label.toLowerCase().replace(/\s+/g, "_");
+                return (
+                  <div key={index} className="form-group">
+                    <label className="form-label">
+                      {field.label} {field.required && "*"}
+                    </label>
+                    {field.type === "textarea" ? (
+                      <textarea
+                        className="form-input"
+                        value={responses[fieldKey] || ""}
+                        onChange={(e) =>
+                          handleInputChange(fieldKey, e.target.value)
+                        }
+                        placeholder={`Enter ${field.label.toLowerCase()}`}
+                        required={field.required}
+                        rows="4"
+                      />
+                    ) : (
+                      <input
+                        type={field.type || "text"}
+                        className="form-input"
+                        value={responses[fieldKey] || ""}
+                        onChange={(e) =>
+                          handleInputChange(fieldKey, e.target.value)
+                        }
+                        placeholder={`Enter ${field.label.toLowerCase()}`}
+                        required={field.required}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Form"}
             </button>
           </form>
         </div>

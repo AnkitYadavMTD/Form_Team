@@ -24,11 +24,11 @@ const adminAuth = (req, res, next) => {
 
 // Create new form (admin only)
 app.post("/api/forms", adminAuth, async (req, res) => {
-  const { title, redirect_url } = req.body;
+  const { title, redirect_url, fields } = req.body;
   try {
     const result = await pool.query(
-      "INSERT INTO forms (title, redirect_url) VALUES ($1, $2) RETURNING *",
-      [title, redirect_url]
+      "INSERT INTO forms (title, redirect_url, fields) VALUES ($1, $2, $3) RETURNING *",
+      [title, redirect_url, JSON.stringify(fields || [])]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -68,7 +68,7 @@ app.get("/api/forms/:id", async (req, res) => {
 // Submit form data (public)
 app.post("/api/forms/:id/submit", async (req, res) => {
   const { id } = req.params;
-  const { name, number, pan } = req.body;
+  const submissionData = req.body;
   try {
     // Check if form exists
     const formResult = await pool.query(
@@ -81,8 +81,8 @@ app.post("/api/forms/:id/submit", async (req, res) => {
 
     // Insert submission
     await pool.query(
-      "INSERT INTO submissions (form_id, name, number, pan) VALUES ($1, $2, $3, $4)",
-      [id, name, number, pan]
+      "INSERT INTO submissions (form_id, data) VALUES ($1, $2)",
+      [id, JSON.stringify(submissionData)]
     );
 
     // Redirect to custom URL
@@ -98,7 +98,7 @@ app.get("/api/forms/:id/submissions", adminAuth, async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      "SELECT * FROM submissions WHERE form_id = $1 ORDER BY submitted_at DESC",
+      "SELECT id, form_id, data, submitted_at FROM submissions WHERE form_id = $1 ORDER BY submitted_at DESC",
       [id]
     );
     res.json(result.rows);
@@ -113,10 +113,13 @@ app.get("/api/forms/:id/export", adminAuth, async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      "SELECT name, number, pan, submitted_at FROM submissions WHERE form_id = $1 ORDER BY submitted_at DESC",
+      "SELECT data, submitted_at FROM submissions WHERE form_id = $1 ORDER BY submitted_at DESC",
       [id]
     );
-    const submissions = result.rows;
+    const submissions = result.rows.map((row) => ({
+      ...JSON.parse(row.data),
+      submitted_at: row.submitted_at,
+    }));
 
     // Create a new workbook and worksheet
     const wb = XLSX.utils.book_new();
