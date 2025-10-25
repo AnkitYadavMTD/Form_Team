@@ -189,6 +189,10 @@ function PublicForm() {
                     const fieldKey = field.label
                       .toLowerCase()
                       .replace(/\s+/g, "_");
+                    // Skip phone number field if it's already in the default fields
+                    if (field.label.toLowerCase().includes("phone")) {
+                      return null;
+                    }
                     return (
                       <div key={index} className="form-group">
                         <label className="form-label">
