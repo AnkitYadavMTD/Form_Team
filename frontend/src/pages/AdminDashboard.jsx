@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import "./AdminDashboard.css";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+  const { logout, getAuthHeaders } = useAuth();
+
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [submissions, setSubmissions] = useState([]);
@@ -14,13 +19,16 @@ function AdminDashboard() {
     fetchForms();
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   const fetchForms = async () => {
     setLoading(true);
     try {
       const response = await fetch("/api/forms", {
-        headers: {
-          Authorization: "admin-token-123",
-        },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -40,9 +48,7 @@ function AdminDashboard() {
     setLoading(true);
     try {
       const response = await fetch(`/api/forms/${formId}/submissions`, {
-        headers: {
-          Authorization: "admin-token-123",
-        },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -62,9 +68,7 @@ function AdminDashboard() {
   const exportSubmissions = async (formId) => {
     try {
       const response = await fetch(`/api/forms/${formId}/export`, {
-        headers: {
-          Authorization: "admin-token-123",
-        },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         // Create a blob from the response and download it
@@ -111,9 +115,7 @@ function AdminDashboard() {
     try {
       const response = await fetch(`/api/forms/${formId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: "admin-token-123",
-        },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         // Refresh the forms list

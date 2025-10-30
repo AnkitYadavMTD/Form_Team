@@ -1,6 +1,9 @@
-import './Home.css';
+import { useAuth } from "../contexts/AuthContext";
+import "./Home.css";
 
 function Home() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="home">
       {/* Hero Section */}
@@ -10,15 +13,29 @@ function Home() {
             Build Forms <span className="highlight">Effortlessly</span>
           </h1>
           <p className="hero-subtitle">
-            Create, manage, and share forms with your team. Collect responses and export data seamlessly.
+            Create, manage, and share forms with your team. Collect responses
+            and export data seamlessly.
           </p>
           <div className="hero-buttons">
-            <a href="/admin" className="btn btn-primary">
-              Create Form
-            </a>
-            <a href="/admin/dashboard" className="btn btn-secondary">
-              View Dashboard
-            </a>
+            {isAuthenticated ? (
+              <>
+                <a href="/admin" className="btn btn-primary">
+                  Create Form
+                </a>
+                <a href="/admin/dashboard" className="btn btn-secondary">
+                  View Dashboard
+                </a>
+              </>
+            ) : (
+              <>
+                <a href="/signin" className="btn btn-primary">
+                  Sign In
+                </a>
+                <a href="/signup" className="btn btn-secondary">
+                  Sign Up
+                </a>
+              </>
+            )}
           </div>
         </div>
         <div className="hero-image">
@@ -51,12 +68,18 @@ function Home() {
             <div className="feature-card">
               <div className="feature-icon">📝</div>
               <h3>Easy Form Creation</h3>
-              <p>Create forms in minutes with our intuitive interface. No coding required.</p>
+              <p>
+                Create forms in minutes with our intuitive interface. No coding
+                required.
+              </p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">🔗</div>
               <h3>Share Instantly</h3>
-              <p>Generate public links and share your forms with anyone, anywhere.</p>
+              <p>
+                Generate public links and share your forms with anyone,
+                anywhere.
+              </p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">📊</div>
@@ -66,17 +89,25 @@ function Home() {
             <div className="feature-card">
               <div className="feature-icon">🎯</div>
               <h3>Custom Redirects</h3>
-              <p>Redirect users to any URL after form submission for a seamless experience.</p>
+              <p>
+                Redirect users to any URL after form submission for a seamless
+                experience.
+              </p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">👥</div>
               <h3>Team Collaboration</h3>
-              <p>Manage forms as a team with secure admin access and dashboard.</p>
+              <p>
+                Manage forms as a team with secure admin access and dashboard.
+              </p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">📱</div>
               <h3>Responsive Design</h3>
-              <p>Forms work perfectly on all devices - desktop, tablet, and mobile.</p>
+              <p>
+                Forms work perfectly on all devices - desktop, tablet, and
+                mobile.
+              </p>
             </div>
           </div>
         </div>
@@ -86,10 +117,19 @@ function Home() {
       <section className="cta">
         <div className="container">
           <h2>Ready to Get Started?</h2>
-          <p>Join thousands of teams already using Team Form Builder to streamline their data collection.</p>
-          <a href="/admin" className="btn btn-primary btn-large">
-            Start Building Forms
-          </a>
+          <p>
+            Join thousands of teams already using Team Form Builder to
+            streamline their data collection.
+          </p>
+          {isAuthenticated ? (
+            <a href="/admin" className="btn btn-primary btn-large">
+              Start Building Forms
+            </a>
+          ) : (
+            <a href="/signin" className="btn btn-primary btn-large">
+              Start Building Forms
+            </a>
+          )}
         </div>
       </section>
     </div>

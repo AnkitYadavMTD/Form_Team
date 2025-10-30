@@ -324,7 +324,7 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
   .form-card {
-    max-width: 700px;
+    max-width: 100%;
   }
 
   .form-header {

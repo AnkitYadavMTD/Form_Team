@@ -28,11 +28,19 @@ body {
 }
 
 .App-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   padding: 1rem 2rem;
   color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .App-header h1 {
@@ -41,98 +49,148 @@ body {
   font-weight: 700;
 }
 
-.App-header.public-form-header {
-  background: transparent;
-  box-shadow: none;
-  padding: 1rem 2rem;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-}
-
-.App-header.public-form-header h1 {
-  font-size: 1.2rem;
-  opacity: 0.8;
-}
-
-nav {
-  background: white;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #e9ecef;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  width: 100%;
+.header-nav {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem;
 }
 
-nav a {
-  color: #495057;
+.header-nav a,
+.header-nav button {
+  color: #2c3e50;
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   transition: all 0.3s ease;
+  background: white;
+  border: 1px solid #ddd;
 }
 
-nav a:hover {
+.header-nav a:hover,
+.header-nav button:hover {
   background: #f8f9fa;
-  color: #007bff;
+  border-color: #adb5bd;
 }
 
-main {
-  flex: 1;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+.header-nav button {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .App-header {
-    padding: 1rem;
-  }
-
-  .App-header h1 {
-    font-size: 1.5rem;
-  }
+.welcome-user {
+  color: white;
+  font-weight: 500;
+  margin-right: 10px;
+  background: transparent;
 
   .App-header.public-form-header {
-    padding: 1rem;
+    background: transparent;
+    box-shadow: none;
+    padding: 1rem 2rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
   }
 
   .App-header.public-form-header h1 {
-    font-size: 1rem;
+    font-size: 1.2rem;
+    opacity: 0.8;
   }
 
   nav {
-    padding: 1rem;
+    /* background: white; */
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   nav a {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .App-header h1 {
-    font-size: 1.25rem;
+    color: #495057;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
   }
 
-  .App-header.public-form-header h1 {
-    font-size: 0.9rem;
+  nav a:hover {
+    background: #f8f9fa;
+    color: #007bff;
   }
 
-  nav {
-    padding: 0.75rem;
+  main {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
-  nav a {
-    padding: 0.5rem;
-    font-size: 0.85rem;
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .App-header {
+      padding: 1rem;
+    }
+
+    .header-content {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .App-header h1 {
+      font-size: 1.5rem;
+    }
+
+    .header-nav {
+      gap: 0.5rem;
+    }
+
+    .App-header.public-form-header {
+      padding: 1rem;
+    }
+
+    .App-header.public-form-header h1 {
+      font-size: 1rem;
+    }
+
+    nav {
+      padding: 1rem;
+    }
+
+    nav a {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+    }
   }
-}
+
+  @media (max-width: 480px) {
+    .App-header h1 {
+      font-size: 1.25rem;
+    }
+
+    .header-nav {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .App-header.public-form-header h1 {
+      font-size: 0.9rem;
+    }
+
+    nav {
+      padding: 0.75rem;
+    }
+
+    nav a {
+      padding: 0.5rem;
+      font-size: 0.85rem;
+    }
+  }

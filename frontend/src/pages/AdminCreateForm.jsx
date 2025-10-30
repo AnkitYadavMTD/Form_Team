@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import "./AdminCreateForm.css";
 
 function AdminCreateForm() {
@@ -214,6 +215,8 @@ function AdminCreateForm() {
     }
   };
 
+  const { getAuthHeaders } = useAuth();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -225,7 +228,7 @@ function AdminCreateForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "admin-token-123", // Simple token for demo
+          ...getAuthHeaders(),
         },
         body: JSON.stringify({
           title: formTitle,
