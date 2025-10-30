@@ -303,6 +303,9 @@ function AdminDashboard() {
                   <table className="submissions-table">
                     <thead>
                       <tr>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>PAN</th>
                         {selectedForm.fields &&
                           selectedForm.fields.map((field) => (
                             <th key={field.id}>{field.label}</th>
@@ -313,6 +316,9 @@ function AdminDashboard() {
                     <tbody>
                       {submissions.map((sub) => (
                         <tr key={sub.id}>
+                          <td>{sub.data.name || ""}</td>
+                          <td>{sub.data.number || ""}</td>
+                          <td>{sub.data.pan || ""}</td>
                           {selectedForm.fields &&
                             selectedForm.fields.map((field) => {
                               const fieldKey = field.label
