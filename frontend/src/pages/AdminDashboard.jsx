@@ -8,7 +8,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
-  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'table'
+  const [viewMode, setViewMode] = useState("table"); // 'grid' or 'table'
 
   useEffect(() => {
     fetchForms();
@@ -98,6 +98,38 @@ function AdminDashboard() {
     }
   };
 
+  const deleteForm = async (formId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this form? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/forms/${formId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "admin-token-123",
+        },
+      });
+      if (response.ok) {
+        // Refresh the forms list
+        await fetchForms();
+        setError("");
+      } else {
+        setError("Failed to delete form");
+      }
+    } catch (err) {
+      setError("Error deleting form");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -175,6 +207,12 @@ function AdminDashboard() {
                         <>🔗 Copy Link</>
                       )}
                     </button>
+                    <button
+                      onClick={() => deleteForm(form.id)}
+                      className="action-btn btn-danger"
+                    >
+                      🗑️ Delete Form
+                    </button>
                   </div>
                 </div>
               ))}
@@ -226,6 +264,13 @@ function AdminDashboard() {
                             }
                           >
                             {copiedId === form.id ? "✓" : "🔗"}
+                          </button>
+                          <button
+                            onClick={() => deleteForm(form.id)}
+                            className="action-btn btn-danger btn-small"
+                            title="Delete Form"
+                          >
+                            🗑️
                           </button>
                         </div>
                       </td>

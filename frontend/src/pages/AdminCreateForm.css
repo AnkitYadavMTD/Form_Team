@@ -24,6 +24,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -86,6 +87,41 @@
   color: #666;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+.template-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.template-btn {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  color: #333;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+}
+
+.template-btn:hover {
+  background: #e9ecef;
+  border-color: #007bff;
+  transform: translateY(-1px);
+}
+
+.template-btn.active {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border-color: #007bff;
+  color: white;
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
 }
 
 .form-fields-info {
@@ -154,6 +190,34 @@
   transform: translateY(-2px);
 }
 
+.required-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.required-toggle:hover {
+  background: #f8f9fa;
+  transform: scale(1.1);
+}
+
+.required-toggle.active {
+  color: #dc3545;
+}
+
+.required-toggle.active:hover {
+  background: #ffe6e6;
+}
+
 .field-icon {
   font-size: 1.5rem;
 }
@@ -215,8 +279,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .message {
@@ -229,8 +298,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .message.success {
@@ -403,12 +477,12 @@
   transition: all 0.3s ease;
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark {
+.checkbox-label input[type="checkbox"]:checked+.checkmark {
   background: #28a745;
   border-color: #28a745;
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+.checkbox-label input[type="checkbox"]:checked+.checkmark::after {
   content: '✓';
   position: absolute;
   top: 50%;
