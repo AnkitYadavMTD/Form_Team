@@ -14,6 +14,9 @@ function AdminDashboard() {
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
   const [viewMode, setViewMode] = useState("table"); // 'grid' or 'table'
+  const [showModal, setShowModal] = useState(false);
+  const [modalSubmissions, setModalSubmissions] = useState([]);
+  const [modalForm, setModalForm] = useState(null);
 
   useEffect(() => {
     fetchForms();
@@ -52,8 +55,9 @@ function AdminDashboard() {
       });
       if (response.ok) {
         const data = await response.json();
-        setSubmissions(data);
-        setSelectedForm(forms.find((f) => f.id === parseInt(formId)));
+        setModalSubmissions(data);
+        setModalForm(forms.find((f) => f.id === parseInt(formId)));
+        setShowModal(true);
       } else {
         setError("Failed to fetch submissions");
       }
@@ -284,61 +288,70 @@ function AdminDashboard() {
           )}
         </div>
 
-        {selectedForm && (
-          <div className="submissions-section">
-            <div className="submissions-card">
-              <div className="submissions-header">
-                <h3>Submissions for "{selectedForm.title}"</h3>
+        {showModal && (
+          <div className="modal-overlay" onClick={() => setShowModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Submissions for "{modalForm?.title}"</h3>
+                <button
+                  className="modal-close-btn"
+                  onClick={() => setShowModal(false)}
+                >
+                  ×
+                </button>
               </div>
-
-              {submissions.length === 0 ? (
-                <div className="no-submissions">
-                  <div>No submissions yet</div>
-                  <small>
-                    Share the public link to start collecting responses
-                  </small>
-                </div>
-              ) : (
-                <div className="submissions-table-container">
-                  <table className="submissions-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Number</th>
-                        <th>PAN</th>
-                        {selectedForm.fields &&
-                          selectedForm.fields.map((field) => (
-                            <th key={field.id}>{field.label}</th>
-                          ))}
-                        <th>Submitted At</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {submissions.map((sub) => (
-                        <tr key={sub.id}>
-                          <td>{sub.data.name || ""}</td>
-                          <td>{sub.data.number || ""}</td>
-                          <td>{sub.data.pan || ""}</td>
-                          {selectedForm.fields &&
-                            selectedForm.fields.map((field) => {
-                              const fieldKey = field.label
-                                .toLowerCase()
-                                .replace(/\s+/g, "_");
-                              return (
-                                <td key={field.id}>
-                                  {sub.data[fieldKey] ||
-                                    sub.data[field.label] ||
-                                    ""}
-                                </td>
-                              );
-                            })}
-                          <td>{new Date(sub.submitted_at).toLocaleString()}</td>
+              <div className="modal-body">
+                {modalSubmissions.length === 0 ? (
+                  <div className="no-submissions">
+                    <div>No submissions yet</div>
+                    <small>
+                      Share the public link to start collecting responses
+                    </small>
+                  </div>
+                ) : (
+                  <div className="submissions-table-container">
+                    <table className="submissions-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Number</th>
+                          <th>PAN</th>
+                          {modalForm?.fields &&
+                            modalForm.fields.map((field) => (
+                              <th key={field.id}>{field.label}</th>
+                            ))}
+                          <th>Submitted At</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                      </thead>
+                      <tbody>
+                        {modalSubmissions.map((sub) => (
+                          <tr key={sub.id}>
+                            <td>{sub.data.name || ""}</td>
+                            <td>{sub.data.number || ""}</td>
+                            <td>{sub.data.pan || ""}</td>
+                            {modalForm?.fields &&
+                              modalForm.fields.map((field) => {
+                                const fieldKey = field.label
+                                  .toLowerCase()
+                                  .replace(/\s+/g, "_");
+                                return (
+                                  <td key={field.id}>
+                                    {sub.data[fieldKey] ||
+                                      sub.data[field.label] ||
+                                      ""}
+                                  </td>
+                                );
+                              })}
+                            <td>
+                              {new Date(sub.submitted_at).toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

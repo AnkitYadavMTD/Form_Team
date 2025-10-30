@@ -144,3 +144,88 @@
 .signup-link:hover {
     text-decoration: underline;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .signin-container {
+        padding: 10px;
+    }
+
+    .signin-card {
+        padding: 30px 20px;
+        max-width: 100%;
+    }
+
+    .signin-header h2 {
+        font-size: 24px;
+    }
+
+    .signin-header p {
+        font-size: 14px;
+    }
+
+    .form-input {
+        padding: 10px 14px;
+        font-size: 16px;
+        /* Prevent zoom on iOS */
+    }
+
+    .signin-btn {
+        padding: 12px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .signin-container {
+        padding: 5px;
+    }
+
+    .signin-card {
+        padding: 20px 15px;
+        border-radius: 8px;
+    }
+
+    .signin-header {
+        margin-bottom: 20px;
+    }
+
+    .signin-header h2 {
+        font-size: 20px;
+    }
+
+    .signin-header p {
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+    }
+
+    .form-input {
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+
+    .signin-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .error-message {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .signin-footer {
+        padding-top: 15px;
+    }
+
+    .signin-footer p {
+        font-size: 13px;
+    }
+}

@@ -1,12 +1,14 @@
-# TODO: Add Logout Option for Profile
+# TODO: Fix Responsiveness in AdminDashboard Header and Form Table
 
-## Steps to Complete
+## Tasks
 
-- [x] Import useNavigate and useAuth in AdminDashboard.jsx
-- [x] Add logout button to the dashboard header in AdminDashboard.jsx
-- [x] Implement onClick handler to call logout() and navigate to home page
-- [x] Test the logout functionality by running the app and verifying redirect to home page
-- [x] Update database schema to associate forms with admin_id
-- [x] Modify backend API to filter forms by admin_id
-- [x] Run database migration to add admin_id column
-- [x] Fix export submissions functionality to handle JSONB data properly
+- [x] Update AdminDashboard.css to make the forms table horizontally scrollable on small screens
+- [x] Adjust header font sizes and alignment for better responsiveness
+- [x] Ensure fonts remain aligned and readable across devices
+- [x] Test the changes for responsiveness
+- [x] Fix nav menu overflow issue
+
+## Progress
+
+- Started: [Date/Time]
+- Completed: [Date/Time]
