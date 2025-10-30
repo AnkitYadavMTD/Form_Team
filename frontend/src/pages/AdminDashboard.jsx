@@ -303,18 +303,29 @@ function AdminDashboard() {
                   <table className="submissions-table">
                     <thead>
                       <tr>
-                        <th>Name</th>
-                        <th>Number</th>
-                        <th>PAN</th>
+                        {selectedForm.fields &&
+                          selectedForm.fields.map((field) => (
+                            <th key={field.id}>{field.label}</th>
+                          ))}
                         <th>Submitted At</th>
                       </tr>
                     </thead>
                     <tbody>
                       {submissions.map((sub) => (
                         <tr key={sub.id}>
-                          <td>{sub.name}</td>
-                          <td>{sub.number}</td>
-                          <td>{sub.pan}</td>
+                          {selectedForm.fields &&
+                            selectedForm.fields.map((field) => {
+                              const fieldKey = field.label
+                                .toLowerCase()
+                                .replace(/\s+/g, "_");
+                              return (
+                                <td key={field.id}>
+                                  {sub.data[fieldKey] ||
+                                    sub.data[field.label] ||
+                                    ""}
+                                </td>
+                              );
+                            })}
                           <td>{new Date(sub.submitted_at).toLocaleString()}</td>
                         </tr>
                       ))}
