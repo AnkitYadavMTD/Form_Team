@@ -91,6 +91,7 @@ body {
 .header-nav button:hover {
   background: #f8f9fa;
   border-color: #adb5bd;
+  cursor: pointer;
 
 }
 
@@ -134,8 +135,11 @@ body {
 .welcome-user {
   color: white;
   font-weight: 500;
-  margin-right: 10px;
   background: transparent;
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  z-index: 1001;
 }
 
 .App-header.public-form-header {
