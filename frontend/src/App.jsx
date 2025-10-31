@@ -53,12 +53,12 @@ function AppContent() {
           </div>
           {!isPublicForm && !isAuthPage && (
             <>
-              <div className="header-center">
-                {authenticated && (
-                  <span className="welcome-user">Welcome, {admin?.email}</span>
-                )}
-              </div>
               <nav className={`header-nav ${isMenuOpen ? "open" : ""}`}>
+                {authenticated && (
+                  <span className="mobile-welcome">
+                    Welcome, {admin?.email}
+                  </span>
+                )}
                 {!authenticated && (
                   <>
                     <a

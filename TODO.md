@@ -1,14 +1,9 @@
-# TODO: Align Header Elements for Mobile View
+# TODO: Shift Welcome Text on Top of Hamburger Menu Options
 
-- [x] Modify @media (max-width: 768px) in frontend/src/App.css:
-  - Change .header-content to flex-direction: row
-  - Hide .header-nav links (set display: none on a, button)
-  - Move .welcome-user to .header-nav for centering
-  - Ensure .hamburger remains in .header-right
-- [x] Move welcome-user span from header-right to header-nav in App.jsx
-- [x] Add .header-center class for proper centering (desktop: absolute position, mobile: centered)
-- [x] Undo desktop changes to keep original layout
-- [x] Fix hamburger menu alignment (position from right instead of center)
-- [x] Fix hamburger menu options display (add display: block for mobile nav items)
-- [ ] Adjust @media (max-width: 480px) if needed for consistency
-- [x] Test the layout in browser to verify alignment: RT Form left, welcome middle, hamburger right (dev server running on http://localhost:5180/)
+## Steps to Complete:
+
+- [x] Edit frontend/src/App.jsx: Remove welcome text from header-center div and add it as the first item in header-nav with class 'mobile-welcome' for authenticated users.
+- [x] Edit frontend/src/App.css: Add styles for .mobile-welcome to hide on desktop and style appropriately for mobile menu. Adjust existing .welcome-user styles.
+- [x] Test mobile menu to confirm welcome text appears at the top of dropdown options.
+- [x] Verify desktop layout remains unaffected (welcome text hidden).
+- [x] Run the app locally to check for any rendering issues.

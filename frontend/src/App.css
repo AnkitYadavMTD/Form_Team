@@ -159,14 +159,16 @@ body {
   transform: rotate(45deg) translate(-5px, -6px);
 }
 
-.welcome-user {
+.mobile-welcome {
+  display: none;
   color: white;
   font-weight: 500;
-  background: transparent;
-  position: absolute;
-  top: 1rem;
-  right: 2rem;
-  z-index: 1001;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
 .App-header.public-form-header {
@@ -326,13 +328,8 @@ main {
 
 
 
-  .welcome-user {
-    position: static;
-    color: white;
-    font-weight: 500;
-    background: transparent;
-    margin: 0;
-    text-align: center;
+  .mobile-welcome {
+    display: block;
   }
 
   .App-header h1 {
@@ -368,13 +365,7 @@ main {
     gap: 0.25rem;
   }
 
-  .welcome-user {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1001;
-    text-align: left;
-  }
+
 
   .header-nav a,
   .header-nav button {
