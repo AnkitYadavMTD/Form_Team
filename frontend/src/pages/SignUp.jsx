@@ -1,12 +1,19 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./SignUp.css";
 
 function SignUp() {
+  const [searchParams] = useSearchParams();
+  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [city, setCity] = useState("");
+  const [plan, setPlan] = useState("Free Demo Plan (15 Days)");
+  const [termsAgreed, setTermsAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -14,10 +21,40 @@ function SignUp() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const planParam = searchParams.get("plan");
+    if (planParam) {
+      const planMap = {
+        bronze: "BRONZE - ₹499/30 Days",
+        silver: "SILVER - ₹1499/90 Days",
+        gold: "GOLD - ₹2999/150 Days",
+        platinum: "PLATINUM - ₹4999/365 Days",
+      };
+      const selectedPlan = planMap[planParam.toLowerCase()];
+      if (selectedPlan) {
+        setPlan(selectedPlan);
+      }
+    }
+  }, [searchParams]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    if (
+      !name ||
+      !fullName ||
+      !mobileNumber ||
+      !email ||
+      !password ||
+      !city ||
+      !plan ||
+      !termsAgreed
+    ) {
+      setError("All fields are required");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -32,7 +69,16 @@ function SignUp() {
     setLoading(true);
 
     try {
-      const result = await register(email, password);
+      const result = await register(
+        name,
+        fullName,
+        mobileNumber,
+        email,
+        password,
+        city,
+        plan,
+        termsAgreed
+      );
 
       if (result.success) {
         setSuccess("Registration successful! You can now sign in.");
@@ -59,13 +105,52 @@ function SignUp() {
 
         <form onSubmit={handleSubmit} className="signup-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter name"
+              required
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="fullName">Full Name</label>
+            <input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter full name"
+              required
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="mobileNumber">Mobile Number</label>
+            <input
+              id="mobileNumber"
+              type="tel"
+              value={mobileNumber}
+              onChange={(e) => setMobileNumber(e.target.value)}
+              placeholder="Enter mobile number"
+              required
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="Enter email address"
               required
               className="form-input"
             />
@@ -78,7 +163,7 @@ function SignUp() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Enter password"
               required
               className="form-input"
             />
@@ -95,6 +180,58 @@ function SignUp() {
               required
               className="form-input"
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="city">City Name</label>
+            <input
+              id="city"
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Enter city"
+              required
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="plan">Select Plan</label>
+            <select
+              id="plan"
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+              required
+              className="form-input"
+            >
+              <option value="Free Demo Plan (15 Days)">
+                Free Demo Plan (15 Days)
+              </option>
+              <option value="BRONZE - ₹499/30 Days">
+                BRONZE - ₹499/30 Days
+              </option>
+              <option value="SILVER - ₹1499/90 Days">
+                SILVER - ₹1499/90 Days
+              </option>
+              <option value="GOLD - ₹2999/150 Days">
+                GOLD - ₹2999/150 Days
+              </option>
+              <option value="PLATINUM - ₹4999/365 Days">
+                PLATINUM - ₹4999/365 Days
+              </option>
+            </select>
+          </div>
+
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={termsAgreed}
+                onChange={(e) => setTermsAgreed(e.target.checked)}
+                required
+              />
+              I agree to the terms and conditions
+            </label>
           </div>
 
           <button type="submit" disabled={loading} className="signup-btn">

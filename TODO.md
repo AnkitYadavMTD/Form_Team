@@ -1,14 +1,7 @@
-# TODO: Fix Responsiveness in AdminDashboard Header and Form Table
+# TODO: Fix Pricing Page Issue
 
-## Tasks
-
-- [x] Update AdminDashboard.css to make the forms table horizontally scrollable on small screens
-- [x] Adjust header font sizes and alignment for better responsiveness
-- [x] Ensure fonts remain aligned and readable across devices
-- [x] Test the changes for responsiveness
-- [x] Fix nav menu overflow issue
-
-## Progress
-
-- Started: [Date/Time]
-- Completed: [Date/Time]
+- [x] Create new Pricing.jsx component by extracting pricing section from Home.jsx
+- [x] Add /pricing route in App.jsx
+- [x] Update navigation in App.jsx to include Pricing link
+- [x] Remove pricing section from Home.jsx
+- [x] Test the new pricing page (Dev server running on http://localhost:5177/)

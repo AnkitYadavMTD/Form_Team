@@ -4,12 +4,15 @@ import {
   Route,
   useLocation,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
+import { useState } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
 import AdminCreateForm from "./pages/AdminCreateForm";
 import AdminDashboard from "./pages/AdminDashboard";
 import PublicForm from "./pages/PublicForm";
 import Home from "./pages/Home";
+import Pricing from "./pages/Pricing";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { useAuth } from "./contexts/AuthContext";
@@ -17,8 +20,12 @@ import "./App.css";
 
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isPublicForm = location.pathname.startsWith("/form/");
+  const isAuthPage =
+    location.pathname === "/signin" || location.pathname === "/signup";
   const { isAuthenticated, loading, logout, admin } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -26,38 +33,104 @@ function AppContent() {
 
   const authenticated = isAuthenticated();
 
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
   return (
     <div className="App">
       <header
-        className={`App-header ${isPublicForm ? "public-form-header" : ""}`}
+        className={`App-header ${isPublicForm ? "public-form-header" : ""} ${
+          isAuthPage ? "auth-page-header" : ""
+        }`}
       >
         <div className="header-content">
-          <h1>Team Form Builder</h1>
-          {!isPublicForm && (
-            <nav className="header-nav">
-              <a href="/">Home</a>
-              {authenticated ? (
-                <>
-                  <span className="welcome-user">Welcome, {admin?.email}</span>
-                  <a href="/admin">Create Form</a>
-                  <a href="/admin/dashboard">Dashboard</a>
-                  <button
-                    onClick={() => {
-                      logout();
-                      window.location.href = "/";
-                    }}
-                    className="logout-btn"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <a href="/signin">Sign In</a>
-                  <a href="/signup">Sign Up</a>
-                </>
+          <h1 onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+            Team Form Builder
+          </h1>
+          {!isPublicForm && !isAuthPage && (
+            <>
+              {authenticated && (
+                <span className="welcome-user">Welcome, {admin?.email}</span>
               )}
-            </nav>
+              <button
+                className={`hamburger ${isMenuOpen ? "open" : ""}`}
+                onClick={toggleMenu}
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
+              <nav className={`header-nav ${isMenuOpen ? "open" : ""}`}>
+                {!authenticated && (
+                  <>
+                    <a
+                      onClick={() => {
+                        navigate("/");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      <i className="fas fa-home"></i> Home
+                    </a>
+                    <a
+                      onClick={() => {
+                        navigate("/pricing");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      <i className="fas fa-dollar-sign"></i> Pricing
+                    </a>
+                  </>
+                )}
+                {authenticated ? (
+                  <>
+                    <a
+                      onClick={() => {
+                        navigate("/admin");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Create Form
+                    </a>
+                    <a
+                      onClick={() => {
+                        navigate("/admin/dashboard");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Dashboard
+                    </a>
+                    <button
+                      onClick={() => {
+                        logout();
+                        navigate("/");
+                        setIsMenuOpen(false);
+                      }}
+                      className="logout-btn"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <a
+                      onClick={() => {
+                        navigate("/signin");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Sign In
+                    </a>
+                    <a
+                      onClick={() => {
+                        navigate("/signup");
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Sign Up
+                    </a>
+                  </>
+                )}
+              </nav>
+            </>
           )}
         </div>
       </header>
@@ -82,7 +155,22 @@ function AppContent() {
             }
           />
           <Route path="/form/:id" element={<PublicForm />} />
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/pricing"
+            element={
+              !isAuthenticated() ? (
+                <Pricing />
+              ) : (
+                <Navigate to="/admin/dashboard" />
+              )
+            }
+          />
+          <Route
+            path="/"
+            element={
+              !isAuthenticated() ? <Home /> : <Navigate to="/admin/dashboard" />
+            }
+          />
         </Routes>
       </main>
     </div>

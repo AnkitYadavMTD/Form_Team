@@ -19,8 +19,14 @@ CREATE TABLE IF NOT EXISTS submissions (
 -- Create admins table
 CREATE TABLE IF NOT EXISTS admins (
     id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    mobile_number VARCHAR(20) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    city VARCHAR(255) NOT NULL,
+    plan VARCHAR(50) DEFAULT 'Free Demo Plan (15 Days)',
+    terms_agreed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

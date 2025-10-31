@@ -258,10 +258,34 @@ app.delete("/api/forms/:id", adminAuth, async (req, res) => {
 
 // Admin registration
 app.post("/api/auth/register", async (req, res) => {
-  const { email, password } = req.body;
+  const {
+    name,
+    fullName,
+    mobileNumber,
+    email,
+    password,
+    city,
+    plan,
+    termsAgreed,
+  } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
+  if (
+    !name ||
+    !fullName ||
+    !mobileNumber ||
+    !email ||
+    !password ||
+    !city ||
+    !plan ||
+    termsAgreed === undefined
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  if (!termsAgreed) {
+    return res
+      .status(400)
+      .json({ error: "You must agree to the terms and conditions" });
   }
 
   try {
@@ -279,8 +303,17 @@ app.post("/api/auth/register", async (req, res) => {
 
     // Create admin
     const result = await pool.query(
-      "INSERT INTO admins (email, password) VALUES ($1, $2) RETURNING id, email, created_at",
-      [email, hashedPassword]
+      "INSERT INTO admins (name, full_name, mobile_number, email, password, city, plan, terms_agreed) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, name, full_name, mobile_number, email, city, plan, terms_agreed, created_at",
+      [
+        name,
+        fullName,
+        mobileNumber,
+        email,
+        hashedPassword,
+        city,
+        plan,
+        termsAgreed,
+      ]
     );
 
     res.status(201).json({
