@@ -53,6 +53,11 @@ function AppContent() {
           </div>
           {!isPublicForm && !isAuthPage && (
             <>
+              <div className="header-center">
+                {authenticated && (
+                  <span className="welcome-user">Welcome, {admin?.email}</span>
+                )}
+              </div>
               <nav className={`header-nav ${isMenuOpen ? "open" : ""}`}>
                 {!authenticated && (
                   <>
@@ -127,9 +132,6 @@ function AppContent() {
                 )}
               </nav>
               <div className="header-right">
-                {authenticated && (
-                  <span className="welcome-user">Welcome, {admin?.email}</span>
-                )}
                 <button
                   className={`hamburger ${isMenuOpen ? "open" : ""}`}
                   onClick={toggleMenu}
@@ -175,7 +177,7 @@ function AppContent() {
       <footer className="App-footer">
         <div className="footer-content">
           <div className="footer-right">
-            <p>&copy; 2023 RT Form. All rights reserved.</p>
+            <p>&copy; 2025 RT Form. All rights reserved.</p>
             <div className="contact-links">
               <a href="mailto:contact@rtform.com">
                 <i className="fas fa-envelope"></i>

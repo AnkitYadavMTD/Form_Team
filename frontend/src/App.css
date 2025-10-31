@@ -55,6 +55,8 @@ body {
   flex: 0 0 auto;
 }
 
+
+
 .header-nav {
   flex: 1;
   display: flex;
@@ -289,14 +291,15 @@ main {
   .header-nav {
     position: absolute;
     top: 100%;
-    right: 0;
+    right: 1rem;
+    left: auto;
+    transform: translateY(-100%);
     background: #2c3e50;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.25rem;
     padding: 0.5rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transform: translateY(-100%);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -316,8 +319,20 @@ main {
   }
 
   .header-content {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
+  }
+
+
+
+  .welcome-user {
+    position: static;
+    color: white;
+    font-weight: 500;
+    background: transparent;
+    margin: 0;
+    text-align: center;
   }
 
   .App-header h1 {
@@ -372,6 +387,7 @@ main {
     background: rgba(255, 255, 255, 0.1);
     border: none;
     border-radius: 4px;
+    display: block;
   }
 
   .header-nav a:hover,
