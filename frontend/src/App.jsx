@@ -44,7 +44,7 @@ function AppContent() {
       >
         <div className="header-content">
           <h1 onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-            Team Form Builder
+            RT Form
           </h1>
           {!isPublicForm && !isAuthPage && (
             <>
