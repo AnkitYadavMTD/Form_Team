@@ -43,22 +43,28 @@ function AppContent() {
         }`}
       >
         <div className="header-content">
-          <h1 onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-            RT Form
-          </h1>
+          <div
+            className="logo"
+            onClick={() => navigate("/")}
+            style={{ cursor: "pointer" }}
+          >
+            <span className="logo-text">RT Form</span>
+          </div>
           {!isPublicForm && !isAuthPage && (
             <>
-              {authenticated && (
-                <span className="welcome-user">Welcome, {admin?.email}</span>
-              )}
-              <button
-                className={`hamburger ${isMenuOpen ? "open" : ""}`}
-                onClick={toggleMenu}
-              >
-                <span></span>
-                <span></span>
-                <span></span>
-              </button>
+              <div className="header-right">
+                {authenticated && (
+                  <span className="welcome-user">Welcome, {admin?.email}</span>
+                )}
+                <button
+                  className={`hamburger ${isMenuOpen ? "open" : ""}`}
+                  onClick={toggleMenu}
+                >
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </button>
+              </div>
               <nav className={`header-nav ${isMenuOpen ? "open" : ""}`}>
                 {!authenticated && (
                   <>

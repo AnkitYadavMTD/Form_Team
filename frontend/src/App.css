@@ -45,10 +45,23 @@ body {
   width: 100%;
 }
 
-.App-header h1 {
-  margin: 0;
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
   font-size: 1.8rem;
   font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .header-nav {
@@ -65,7 +78,7 @@ body {
 .header-nav button {
 
   color: #2c3e50;
-  text-decoration: none;
+  text-decoration: none !important;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;
