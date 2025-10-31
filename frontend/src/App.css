@@ -43,6 +43,26 @@ body {
   margin: 0 auto;
   position: relative;
   width: 100%;
+  padding: 0 1rem;
+}
+
+.header-left {
+  flex: 0 0 auto;
+}
+
+.header-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .logo {
@@ -76,7 +96,6 @@ body {
 
 .header-nav a,
 .header-nav button {
-
   color: #2c3e50;
   text-decoration: none !important;
   font-weight: 500;
@@ -85,14 +104,15 @@ body {
   transition: all 0.3s ease;
   background: white;
   border: 1px solid #ddd;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .header-nav a:hover,
 .header-nav button:hover {
   background: #f8f9fa;
   border-color: #adb5bd;
-  cursor: pointer;
-
 }
 
 .header-nav button {
