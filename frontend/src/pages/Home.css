@@ -188,6 +188,12 @@
   margin: 0 auto;
 }
 
+@media (min-width: 1200px) {
+  .pricing-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 .pricing-card {
   background: white;
   border: 2px solid #e9ecef;

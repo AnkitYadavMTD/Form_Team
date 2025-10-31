@@ -12,7 +12,6 @@ import AdminCreateForm from "./pages/AdminCreateForm";
 import AdminDashboard from "./pages/AdminDashboard";
 import PublicForm from "./pages/PublicForm";
 import Home from "./pages/Home";
-import Pricing from "./pages/Pricing";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { useAuth } from "./contexts/AuthContext";
@@ -58,8 +57,10 @@ function AppContent() {
                 {!authenticated && (
                   <>
                     <a
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         navigate("/");
+                        window.scrollTo(0, 0);
                         setIsMenuOpen(false);
                       }}
                     >
@@ -67,7 +68,7 @@ function AppContent() {
                     </a>
                     <a
                       onClick={() => {
-                        navigate("/pricing");
+                        navigate("/#pricing");
                         setIsMenuOpen(false);
                       }}
                     >
@@ -164,16 +165,6 @@ function AppContent() {
           />
           <Route path="/form/:id" element={<PublicForm />} />
           <Route
-            path="/pricing"
-            element={
-              !isAuthenticated() ? (
-                <Pricing />
-              ) : (
-                <Navigate to="/admin/dashboard" />
-              )
-            }
-          />
-          <Route
             path="/"
             element={
               !isAuthenticated() ? <Home /> : <Navigate to="/admin/dashboard" />
@@ -181,6 +172,39 @@ function AppContent() {
           />
         </Routes>
       </main>
+      <footer className="App-footer">
+        <div className="footer-content">
+          <div className="footer-right">
+            <p>&copy; 2023 RT Form. All rights reserved.</p>
+            <div className="contact-links">
+              <a href="mailto:contact@rtform.com">
+                <i className="fas fa-envelope"></i>
+              </a>
+              <a
+                href="https://twitter.com/rtform"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-twitter"></i>
+              </a>
+              <a
+                href="https://linkedin.com/company/rtform"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-linkedin"></i>
+              </a>
+              <a
+                href="https://youtube.com/@rtform"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-youtube"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

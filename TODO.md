@@ -1,7 +1,6 @@
-# TODO: Fix Pricing Page Issue
-
-- [x] Create new Pricing.jsx component by extracting pricing section from Home.jsx
-- [x] Add /pricing route in App.jsx
-- [x] Update navigation in App.jsx to include Pricing link
-- [x] Remove pricing section from Home.jsx
-- [x] Test the new pricing page (Dev server running on http://localhost:5177/)
+- [x] Delete the separate Pricing.jsx file
+- [x] Update App.jsx: Remove Pricing import, remove /pricing route, change pricing link to navigate to "/#pricing"
+- [x] Update Home.jsx: Add id="pricing" to pricing section, add useEffect for scrolling, import useEffect
+- [x] Update Home.css: Add media query to align 4 plans in a line on larger screens
+- [x] Make navbar fixed on scroll (except on signin/signup pages)
+- [x] Remove header padding on signin/signup pages

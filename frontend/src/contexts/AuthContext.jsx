@@ -37,7 +37,12 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        throw new Error("Server returned invalid response");
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
@@ -84,7 +89,12 @@ export const AuthProvider = ({ children }) => {
         }),
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        throw new Error("Server returned invalid response");
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Registration failed");
