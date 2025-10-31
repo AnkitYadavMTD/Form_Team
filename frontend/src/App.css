@@ -171,6 +171,13 @@ body {
   font-size: 0.9rem;
 }
 
+.desktop-welcome {
+  color: white;
+  font-weight: 500;
+  margin-right: 1rem;
+  font-size: 0.9rem;
+}
+
 .App-header.public-form-header {
   background: transparent;
   box-shadow: none;
@@ -330,6 +337,10 @@ main {
 
   .mobile-welcome {
     display: block;
+  }
+
+  .desktop-welcome {
+    display: none;
   }
 
   .App-header h1 {

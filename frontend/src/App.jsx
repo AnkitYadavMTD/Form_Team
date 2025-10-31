@@ -132,6 +132,11 @@ function AppContent() {
                 )}
               </nav>
               <div className="header-right">
+                {authenticated && (
+                  <span className="desktop-welcome">
+                    Welcome, {admin?.email}
+                  </span>
+                )}
                 <button
                   className={`hamburger ${isMenuOpen ? "open" : ""}`}
                   onClick={toggleMenu}

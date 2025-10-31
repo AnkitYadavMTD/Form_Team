@@ -1,9 +1,9 @@
-# TODO: Shift Welcome Text on Top of Hamburger Menu Options
+# TODO: Display Welcome Text on Right in Desktop View
 
 ## Steps to Complete:
 
-- [x] Edit frontend/src/App.jsx: Remove welcome text from header-center div and add it as the first item in header-nav with class 'mobile-welcome' for authenticated users.
-- [x] Edit frontend/src/App.css: Add styles for .mobile-welcome to hide on desktop and style appropriately for mobile menu. Adjust existing .welcome-user styles.
-- [x] Test mobile menu to confirm welcome text appears at the top of dropdown options.
-- [x] Verify desktop layout remains unaffected (welcome text hidden).
+- [x] Edit frontend/src/App.jsx: Add welcome text in header-right for desktop view when authenticated.
+- [x] Edit frontend/src/App.css: Add styles for .desktop-welcome to show on desktop and hide on mobile.
+- [x] Test desktop view to confirm welcome text appears on the right.
+- [x] Verify mobile view remains unchanged.
 - [x] Run the app locally to check for any rendering issues.
