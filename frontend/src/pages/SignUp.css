@@ -176,6 +176,102 @@
     text-decoration: underline;
 }
 
+/* OTP Modal Styles */
+.otp-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.otp-modal {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+}
+
+.otp-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.otp-modal-header h3 {
+    color: #333;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.otp-modal-body p {
+    color: #666;
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.otp-input {
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 0.5rem;
+    font-weight: 600;
+}
+
+.verify-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.verify-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.verify-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .signup-container {
@@ -204,6 +300,14 @@
     .signup-btn {
         padding: 12px;
         font-size: 15px;
+    }
+
+    .otp-modal {
+        padding: 20px;
+    }
+
+    .otp-modal-header h3 {
+        font-size: 1.3rem;
     }
 }
 
@@ -259,5 +363,13 @@
 
     .signup-footer p {
         font-size: 13px;
+    }
+
+    .otp-modal {
+        padding: 15px;
+    }
+
+    .otp-modal-header h3 {
+        font-size: 1.2rem;
     }
 }

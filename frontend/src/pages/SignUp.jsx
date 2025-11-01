@@ -3,6 +3,60 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./SignUp.css";
 
+const OTPModal = ({ email, onVerify, onClose, error, loading }) => {
+  const [otp, setOtp] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (otp.length === 6) {
+      await onVerify(email, otp);
+    }
+  };
+
+  return (
+    <div className="otp-modal-overlay">
+      <div className="otp-modal">
+        <div className="otp-modal-header">
+          <h3>Verify Your Email</h3>
+          <button onClick={onClose} className="close-btn">
+            &times;
+          </button>
+        </div>
+        <div className="otp-modal-body">
+          <p>
+            We've sent a 6-digit OTP to <strong>{email}</strong>
+          </p>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="otp">Enter OTP</label>
+              <input
+                id="otp"
+                type="text"
+                value={otp}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+                placeholder="000000"
+                maxLength="6"
+                required
+                className="form-input otp-input"
+              />
+            </div>
+            {error && <div className="error-message">{error}</div>}
+            <button
+              type="submit"
+              disabled={loading || otp.length !== 6}
+              className="verify-btn"
+            >
+              {loading ? "Verifying..." : "Verify OTP"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function SignUp() {
   const [searchParams] = useSearchParams();
   const [name, setName] = useState("");
@@ -17,8 +71,11 @@ function SignUp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
 
-  const { register } = useAuth();
+  const { register, sendOtp, verifyOtp } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,10 +94,9 @@ function SignUp() {
     }
   }, [searchParams]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSendOtp = async () => {
     setError("");
-    setSuccess("");
+    setOtpError("");
 
     if (
       !name ||
@@ -69,30 +125,57 @@ function SignUp() {
     setLoading(true);
 
     try {
-      const result = await register(
-        name,
-        fullName,
-        mobileNumber,
-        email,
-        password,
-        city,
-        plan,
-        termsAgreed
-      );
-
+      const result = await sendOtp(email);
       if (result.success) {
-        setSuccess("Registration successful! You can now sign in.");
-        setTimeout(() => {
-          navigate("/signin");
-        }, 2000);
+        setShowOtpModal(true);
       } else {
         setError(result.error);
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError("Failed to send OTP");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVerifyOtp = async (email, otp) => {
+    setOtpError("");
+    setOtpLoading(true);
+
+    try {
+      const result = await verifyOtp(email, otp);
+      if (result.success) {
+        // OTP verified, now register the user
+        const registerResult = await register(
+          name,
+          fullName,
+          mobileNumber,
+          email,
+          password,
+          city,
+          plan,
+          termsAgreed
+        );
+
+        if (registerResult.success) {
+          setShowOtpModal(false);
+          navigate("/thanks");
+        } else {
+          setOtpError(registerResult.error);
+        }
+      } else {
+        setOtpError(result.error);
+      }
+    } catch (err) {
+      setOtpError("Failed to verify OTP");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleCloseOtpModal = () => {
+    setShowOtpModal(false);
+    setOtpError("");
   };
 
   return (
@@ -103,7 +186,13 @@ function SignUp() {
           <p>Create your admin account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="signup-form">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSendOtp();
+          }}
+          className="signup-form"
+        >
           <div className="form-group">
             <label htmlFor="name">Name</label>
             <input
@@ -249,6 +338,16 @@ function SignUp() {
         {error && <div className="error-message">{error}</div>}
 
         {success && <div className="success-message">{success}</div>}
+
+        {showOtpModal && (
+          <OTPModal
+            email={email}
+            onVerify={handleVerifyOtp}
+            onClose={handleCloseOtpModal}
+            error={otpError}
+            loading={otpLoading}
+          />
+        )}
 
         <div className="signup-footer">
           <p>

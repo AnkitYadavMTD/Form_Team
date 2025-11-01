@@ -14,6 +14,7 @@ import PublicForm from "./pages/PublicForm";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import Thanks from "./pages/Thanks";
 import { useAuth } from "./contexts/AuthContext";
 import "./App.css";
 
@@ -154,6 +155,7 @@ function AppContent() {
         <Routes>
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/thanks" element={<Thanks />} />
           <Route
             path="/admin"
             element={

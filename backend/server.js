@@ -1,12 +1,33 @@
+require("dotenv").config();
 const express = require("express");
 const pool = require("./db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const { exportSubmissionsToExcel } = require("./exportUtils");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Use env var for production
+
+// Email transporter
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for port 465
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Email transporter error:", error);
+  } else {
+    console.log("✅ Mail transporter ready");
+  }
+});
 
 app.use(express.json());
 
@@ -256,6 +277,127 @@ app.delete("/api/forms/:id", adminAuth, async (req, res) => {
   }
 });
 
+// Send OTP for email verification
+app.post("/api/auth/send-otp", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    // Check if admin already exists and is verified
+    const existingAdmin = await pool.query(
+      "SELECT id, is_verified FROM admins WHERE email = $1",
+      [email]
+    );
+    if (existingAdmin.rows.length > 0 && existingAdmin.rows[0].is_verified) {
+      return res
+        .status(400)
+        .json({ error: "Admin already exists and is verified" });
+    }
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Delete any existing OTP for this email
+    await pool.query("DELETE FROM otp_verifications WHERE email = $1", [email]);
+
+    // Insert new OTP
+    await pool.query(
+      "INSERT INTO otp_verifications (email, otp, expires_at) VALUES ($1, $2, $3)",
+      [email, otp, expiresAt]
+    );
+
+    // Log OTP for development
+    console.log(`OTP for ${email}: ${otp} (expires in 10 minutes)`);
+
+    // For development: Log OTP instead of sending email
+    console.log(`OTP for ${email}: ${otp} (expires in 10 minutes)`);
+
+    // Uncomment the following code to enable email sending in production
+
+    // Send email
+    const mailOptions = {
+      from: '"RT Form" <rtform2025@gmail.com>',
+      to: email,
+      subject: "RT Form - Email Verification OTP",
+      text: `Welcome to RT Form!\n\nYour OTP for email verification is: ${otp}\n\nThis OTP expires in 10 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nRT Form Team`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Welcome to RT Form!</h2>
+          <p>Your OTP for email verification is:</p>
+          <div style="background-color: #f0f0f0; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; margin: 20px 0;">
+            ${otp}
+          </div>
+          <p>This OTP expires in 10 minutes.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+          <p>Best regards,<br>RT Form Team</p>
+        </div>
+      `,
+    };
+
+    console.log("Attempting to send email with options:", {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      otp: otp,
+    });
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully");
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      throw emailError;
+    }
+
+    res.json({ message: "OTP sent successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send OTP" });
+  }
+});
+
+// Verify OTP
+app.post("/api/auth/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: "Email and OTP are required" });
+  }
+
+  try {
+    const result = await pool.query(
+      "SELECT otp, expires_at FROM otp_verifications WHERE email = $1",
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: "OTP not found" });
+    }
+
+    const { otp: storedOtp, expires_at } = result.rows[0];
+
+    if (new Date() > new Date(expires_at)) {
+      return res.status(400).json({ error: "OTP expired" });
+    }
+
+    if (otp !== storedOtp) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    // Delete OTP after verification
+    await pool.query("DELETE FROM otp_verifications WHERE email = $1", [email]);
+
+    res.json({ message: "OTP verified successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to verify OTP" });
+  }
+});
+
 // Admin registration
 app.post("/api/auth/register", async (req, res) => {
   const {
@@ -289,21 +431,32 @@ app.post("/api/auth/register", async (req, res) => {
   }
 
   try {
-    // Check if admin already exists
+    // Check if admin already exists and is verified
     const existingAdmin = await pool.query(
-      "SELECT id FROM admins WHERE email = $1",
+      "SELECT id, is_verified FROM admins WHERE email = $1",
       [email]
     );
-    if (existingAdmin.rows.length > 0) {
+    if (existingAdmin.rows.length > 0 && existingAdmin.rows[0].is_verified) {
       return res.status(400).json({ error: "Admin already exists" });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create admin
+    // Create or update admin
     const result = await pool.query(
-      "INSERT INTO admins (name, full_name, mobile_number, email, password, city, plan, terms_agreed) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, name, full_name, mobile_number, email, city, plan, terms_agreed, created_at",
+      `INSERT INTO admins (name, full_name, mobile_number, email, password, city, plan, terms_agreed, is_verified)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+       ON CONFLICT (email) DO UPDATE SET
+         name = EXCLUDED.name,
+         full_name = EXCLUDED.full_name,
+         mobile_number = EXCLUDED.mobile_number,
+         password = EXCLUDED.password,
+         city = EXCLUDED.city,
+         plan = EXCLUDED.plan,
+         terms_agreed = EXCLUDED.terms_agreed,
+         is_verified = true
+       RETURNING id, name, full_name, mobile_number, email, city, plan, terms_agreed, created_at`,
       [
         name,
         fullName,
@@ -379,6 +532,12 @@ app.get("/test-db", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Database connection failed" });
   }
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global error:", err);
+  res.status(500).json({ error: "Internal server error" });
 });
 
 app.listen(PORT, () => {

@@ -27,6 +27,16 @@ CREATE TABLE IF NOT EXISTS admins (
     city VARCHAR(255) NOT NULL,
     plan VARCHAR(50) DEFAULT 'Free Demo Plan (15 Days)',
     terms_agreed BOOLEAN DEFAULT FALSE,
+    is_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create otp_verifications table
+CREATE TABLE IF NOT EXISTS otp_verifications (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    otp VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

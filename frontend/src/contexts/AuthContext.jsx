@@ -61,6 +61,72 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const sendOtp = async (email) => {
+    try {
+      const response = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = "Failed to send OTP";
+        try {
+          const data = await response.json();
+          errorMessage = data.error || errorMessage;
+        } catch {
+          try {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          } catch {
+            // ignore
+          }
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const verifyOtp = async (email, otp) => {
+    try {
+      const response = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = "OTP verification failed";
+        try {
+          const data = await response.json();
+          errorMessage = data.error || errorMessage;
+        } catch {
+          try {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          } catch {
+            // ignore
+          }
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
   const register = async (
     name,
     fullName,
@@ -89,17 +155,23 @@ export const AuthProvider = ({ children }) => {
         }),
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        throw new Error("Server returned invalid response");
-      }
-
       if (!response.ok) {
-        throw new Error(data.error || "Registration failed");
+        let errorMessage = "Registration failed";
+        try {
+          const data = await response.json();
+          errorMessage = data.error || errorMessage;
+        } catch {
+          try {
+            const text = await response.text();
+            errorMessage = text || errorMessage;
+          } catch {
+            // ignore
+          }
+        }
+        throw new Error(errorMessage);
       }
 
+      const data = await response.json();
       return { success: true, message: data.message };
     } catch (error) {
       return { success: false, error: error.message };
@@ -130,6 +202,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     isAuthenticated,
     getAuthHeaders,
+    sendOtp,
+    verifyOtp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

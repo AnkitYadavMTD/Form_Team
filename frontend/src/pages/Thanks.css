@@ -1,0 +1,81 @@
+.thanks-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.thanks-content {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+}
+
+.thanks-icon {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+.thanks-content h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.thanks-content p {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.activation-message {
+    color: #007bff !important;
+    font-weight: 600;
+    font-size: 1.2rem !important;
+}
+
+.redirect-message {
+    color: #888 !important;
+    font-size: 1rem !important;
+    margin-bottom: 30px !important;
+}
+
+.signin-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.signin-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .thanks-content {
+        padding: 30px 20px;
+    }
+
+    .thanks-content h1 {
+        font-size: 2rem;
+    }
+
+    .thanks-icon {
+        font-size: 3rem;
+    }
+}
