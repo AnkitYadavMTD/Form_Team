@@ -12,7 +12,7 @@
 
 .form-card {
   width: 100%;
-  max-width: 100%;
+  max-width: 800px;
   background: white;
   border-radius: 20px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
@@ -324,7 +324,7 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
   .form-card {
-    max-width: 100%;
+    max-width: 700px;
   }
 
   .form-header {
@@ -528,7 +528,7 @@
 @media (max-width: 768px) {
   .public-form-container {
     min-height: auto;
-    padding-bottom: 2rem;
+    padding-top: 2rem;
   }
 
   .form-card {
