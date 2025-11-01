@@ -23,7 +23,16 @@ function SignIn() {
       if (result.success) {
         navigate("/admin/dashboard");
       } else {
-        setError(result.error);
+        // Handle approval status messages
+        if (result.status === "pending") {
+          setError(
+            "Your account is pending approval. Please wait for admin approval before signing in."
+          );
+        } else if (result.status === "rejected") {
+          setError(result.error);
+        } else {
+          setError(result.error);
+        }
       }
     } catch (err) {
       setError("An unexpected error occurred");

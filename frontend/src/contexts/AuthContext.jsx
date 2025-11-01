@@ -45,6 +45,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (!response.ok) {
+        // Handle approval status errors
+        if (response.status === 403 && data.status) {
+          return { success: false, error: data.error, status: data.status };
+        }
         throw new Error(data.error || "Login failed");
       }
 

@@ -167,9 +167,13 @@ function PublicForm() {
                   type="text"
                   className="form-input"
                   value={responses.pan}
-                  onChange={(e) => handleInputChange("pan", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase(); // 🔹 auto uppercase
+                    handleInputChange("pan", value);
+                  }}
                   placeholder="Enter your PAN number (e.g., ABCDE1234F)"
                   required
+                  maxLength={10} // PAN always 10 characters
                   pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
                   title="Please enter a valid PAN number (5 letters, 4 numbers, 1 letter)"
                 />

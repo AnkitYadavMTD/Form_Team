@@ -28,6 +28,10 @@ CREATE TABLE IF NOT EXISTS admins (
     plan VARCHAR(50) DEFAULT 'Free Demo Plan (15 Days)',
     terms_agreed BOOLEAN DEFAULT FALSE,
     is_verified BOOLEAN DEFAULT FALSE,
+    approval_status VARCHAR(20) DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
+    approved_by INTEGER REFERENCES admins(id),
+    approved_at TIMESTAMP,
+    rejection_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

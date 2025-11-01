@@ -433,20 +433,26 @@ app.post("/api/auth/register", async (req, res) => {
   try {
     // Check if admin already exists and is verified
     const existingAdmin = await pool.query(
-      "SELECT id, is_verified FROM admins WHERE email = $1",
+      "SELECT id, is_verified, approval_status FROM admins WHERE email = $1",
       [email]
     );
-    if (existingAdmin.rows.length > 0 && existingAdmin.rows[0].is_verified) {
-      return res.status(400).json({ error: "Admin already exists" });
+    if (
+      existingAdmin.rows.length > 0 &&
+      existingAdmin.rows[0].is_verified &&
+      existingAdmin.rows[0].approval_status === "approved"
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Admin already exists and is approved" });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create or update admin
+    // Create or update admin with pending status
     const result = await pool.query(
-      `INSERT INTO admins (name, full_name, mobile_number, email, password, city, plan, terms_agreed, is_verified)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+      `INSERT INTO admins (name, full_name, mobile_number, email, password, city, plan, terms_agreed, is_verified, approval_status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, 'pending')
        ON CONFLICT (email) DO UPDATE SET
          name = EXCLUDED.name,
          full_name = EXCLUDED.full_name,
@@ -455,8 +461,9 @@ app.post("/api/auth/register", async (req, res) => {
          city = EXCLUDED.city,
          plan = EXCLUDED.plan,
          terms_agreed = EXCLUDED.terms_agreed,
-         is_verified = true
-       RETURNING id, name, full_name, mobile_number, email, city, plan, terms_agreed, created_at`,
+         is_verified = true,
+         approval_status = 'pending'
+       RETURNING id, name, full_name, mobile_number, email, city, plan, terms_agreed, approval_status, created_at`,
       [
         name,
         fullName,
@@ -470,7 +477,8 @@ app.post("/api/auth/register", async (req, res) => {
     );
 
     res.status(201).json({
-      message: "Admin registered successfully",
+      message:
+        "Admin registered successfully. Your account is pending approval.",
       admin: result.rows[0],
     });
   } catch (err) {
@@ -490,7 +498,7 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     // Find admin
     const result = await pool.query(
-      "SELECT id, email, password FROM admins WHERE email = $1",
+      "SELECT id, email, password, approval_status, rejection_reason FROM admins WHERE email = $1",
       [email]
     );
     if (result.rows.length === 0) {
@@ -503,6 +511,24 @@ app.post("/api/auth/login", async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, admin.password);
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    // Check approval status
+    if (admin.approval_status === "pending") {
+      return res.status(403).json({
+        error:
+          "Your account is pending approval. Please wait for admin approval.",
+        status: "pending",
+      });
+    }
+
+    if (admin.approval_status === "rejected") {
+      return res.status(403).json({
+        error: `Your account has been rejected. Reason: ${
+          admin.rejection_reason || "No reason provided"
+        }`,
+        status: "rejected",
+      });
     }
 
     // Generate JWT token
@@ -538,6 +564,82 @@ app.get("/test-db", async (req, res) => {
 app.use((err, req, res, next) => {
   console.error("Global error:", err);
   res.status(500).json({ error: "Internal server error" });
+});
+
+// Get pending users (admin only)
+app.get("/api/admin/pending-users", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, full_name, mobile_number, email, city, plan, created_at FROM admins WHERE approval_status = 'pending' ORDER BY created_at DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch pending users" });
+  }
+});
+
+// Get all users (admin only)
+app.get("/api/admin/users", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, full_name, mobile_number, email, city, plan, approval_status, rejection_reason, created_at FROM admins WHERE approval_status IN ('pending', 'rejected') ORDER BY created_at DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// Approve user (admin only)
+app.post("/api/admin/approve-user/:id", adminAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "UPDATE admins SET approval_status = 'approved', approved_by = $2, approved_at = CURRENT_TIMESTAMP WHERE id = $1 AND approval_status = 'pending' RETURNING *",
+      [id, req.adminId]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "User not found or already approved" });
+    }
+
+    res.json({ message: "User approved successfully", user: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to approve user" });
+  }
+});
+
+// Reject user (admin only)
+app.post("/api/admin/reject-user/:id", adminAuth, async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+
+  if (!reason || reason.trim().length === 0) {
+    return res.status(400).json({ error: "Rejection reason is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      "UPDATE admins SET approval_status = 'rejected', rejection_reason = $2 WHERE id = $1 AND approval_status = 'pending' RETURNING *",
+      [id, reason.trim()]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "User not found or already processed" });
+    }
+
+    res.json({ message: "User rejected successfully", user: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to reject user" });
+  }
 });
 
 app.listen(PORT, () => {

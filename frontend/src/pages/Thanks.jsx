@@ -22,7 +22,10 @@ const Thanks = () => {
         </div>
         <h1>Thank You!</h1>
         <p>Your account has been created successfully.</p>
-        <p className="activation-message">Activation under process...</p>
+        <p className="activation-message">
+          Your account is pending approval. Please wait for admin approval
+          before signing in.
+        </p>
         <p className="redirect-message">
           You will be redirected to the sign-in page in 5 seconds.
         </p>

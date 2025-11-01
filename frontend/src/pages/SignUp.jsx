@@ -59,8 +59,8 @@ const OTPModal = ({ email, onVerify, onClose, error, loading }) => {
 
 function SignUp() {
   const [searchParams] = useSearchParams();
-  const [name, setName] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [yourName, setYourName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -99,8 +99,8 @@ function SignUp() {
     setOtpError("");
 
     if (
-      !name ||
-      !fullName ||
+      !companyName ||
+      !yourName ||
       !mobileNumber ||
       !email ||
       !password ||
@@ -147,8 +147,8 @@ function SignUp() {
       if (result.success) {
         // OTP verified, now register the user
         const registerResult = await register(
-          name,
-          fullName,
+          companyName,
+          yourName,
           mobileNumber,
           email,
           password,
@@ -161,7 +161,9 @@ function SignUp() {
           setShowOtpModal(false);
           navigate("/thanks");
         } else {
-          setOtpError(registerResult.error);
+          setOtpError(
+            registerResult.error || "Registration failed. Please try again."
+          );
         }
       } else {
         setOtpError(result.error);
@@ -193,27 +195,29 @@ function SignUp() {
           }}
           className="signup-form"
         >
+          {/* Company Name Field */}
           <div className="form-group">
-            <label htmlFor="name">Name</label>
+            <label htmlFor="companyName">Company Name (Firm Name)</label>
             <input
-              id="name"
+              id="companyName"
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter name"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="Enter company or firm name"
               required
               className="form-input"
             />
           </div>
 
+          {/* Your Name Field */}
           <div className="form-group">
-            <label htmlFor="fullName">Full Name</label>
+            <label htmlFor="yourName">Your Name</label>
             <input
-              id="fullName"
+              id="yourName"
               type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Enter full name"
+              value={yourName}
+              onChange={(e) => setYourName(e.target.value)}
+              placeholder="Enter your name"
               required
               className="form-input"
             />
@@ -311,15 +315,45 @@ function SignUp() {
             </select>
           </div>
 
-          <div className="form-group checkbox-group">
-            <label className="checkbox-label">
+          <div className="form-group" style={{ marginTop: "10px" }}>
+            <label
+              htmlFor="terms"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "14px",
+                cursor: "pointer",
+              }}
+            >
               <input
+                id="terms"
                 type="checkbox"
                 checked={termsAgreed}
                 onChange={(e) => setTermsAgreed(e.target.checked)}
                 required
+                style={{
+                  width: "18px",
+                  height: "18px",
+                  cursor: "pointer",
+                  accentColor: "#007bff",
+                }}
               />
-              I agree to the terms and conditions
+              <span>
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: "#007bff",
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                  }}
+                >
+                  terms and conditions
+                </a>
+              </span>
             </label>
           </div>
 
@@ -336,7 +370,6 @@ function SignUp() {
         </form>
 
         {error && <div className="error-message">{error}</div>}
-
         {success && <div className="success-message">{success}</div>}
 
         {showOtpModal && (
