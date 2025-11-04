@@ -9,7 +9,8 @@ import {
 import { useState } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
 import AdminCreateForm from "./pages/AdminCreateForm";
-import AdminDashboard from "./pages/AdminDashboard";
+import DashboardLayout from "./components/DashboardLayout";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import PublicForm from "./pages/PublicForm";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
@@ -94,7 +95,11 @@ function AppContent() {
                     </a>
                     <a
                       onClick={() => {
-                        navigate("/admin/dashboard");
+                        if (admin?.role === "superadmin") {
+                          navigate("/superadmin/dashboard");
+                        } else {
+                          navigate("/admin/dashboard");
+                        }
                         setIsMenuOpen(false);
                       }}
                     >
@@ -135,7 +140,7 @@ function AppContent() {
               <div className="header-right">
                 {authenticated && (
                   <span className="desktop-welcome">
-                    Welcome, {admin?.email}
+                    Welcome, {admin?.name}
                   </span>
                 )}
                 <button
@@ -169,14 +174,38 @@ function AppContent() {
           <Route
             path="/admin/dashboard"
             element={
-              isAuthenticated() ? <AdminDashboard /> : <Navigate to="/signin" />
+              isAuthenticated() ? (
+                admin?.role === "superadmin" ? (
+                  <Navigate to="/superadmin/dashboard" />
+                ) : (
+                  <DashboardLayout />
+                )
+              ) : (
+                <Navigate to="/signin" />
+              )
+            }
+          />
+          <Route
+            path="/superadmin/dashboard"
+            element={
+              isAuthenticated() && admin?.role === "superadmin" ? (
+                <SuperAdminDashboard />
+              ) : (
+                <Navigate to="/signin" />
+              )
             }
           />
           <Route path="/form/:id" element={<PublicForm />} />
           <Route
             path="/"
             element={
-              !isAuthenticated() ? <Home /> : <Navigate to="/admin/dashboard" />
+              !isAuthenticated() ? (
+                <Home />
+              ) : admin?.role === "superadmin" ? (
+                <Navigate to="/superadmin/dashboard" />
+              ) : (
+                <Navigate to="/admin/dashboard" />
+              )
             }
           />
         </Routes>

@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS admins (
     terms_agreed BOOLEAN DEFAULT FALSE,
     is_verified BOOLEAN DEFAULT FALSE,
     approval_status VARCHAR(20) DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
+    role VARCHAR(20) DEFAULT 'admin' CHECK (role IN ('admin', 'superadmin')),
     approved_by INTEGER REFERENCES admins(id),
     approved_at TIMESTAMP,
     rejection_reason TEXT,

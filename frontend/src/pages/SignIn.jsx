@@ -21,7 +21,11 @@ function SignIn() {
       const result = await login(email, password);
 
       if (result.success) {
-        navigate("/admin/dashboard");
+        if (result.role === "superadmin") {
+          navigate("/superadmin/dashboard");
+        } else {
+          navigate("/admin/dashboard");
+        }
       } else {
         // Handle approval status messages
         if (result.status === "pending") {

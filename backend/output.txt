@@ -1,0 +1,10 @@
+Connected to the database
+Users: [
+  { role: 'superadmin', email: 'test@example.com' },
+  { role: 'superadmin', email: 'admin@example.com' },
+  { role: 'admin', email: 'user@example.com' },
+  { role: 'admin', email: 'testuser@example.com' },
+  { role: 'admin', email: 'Test@gmail.com' },
+  { role: 'admin', email: 'Boss@gmail.com' },
+  { role: 'admin', email: 'rtyadavmtd@gmail.com' }
+]

@@ -47,6 +47,28 @@ const adminAuth = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.adminId = decoded.adminId;
+    req.adminRole = decoded.adminRole || "admin";
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+};
+
+// Middleware for superadmin authentication
+const superadminAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.adminId = decoded.adminId;
+    req.adminRole = decoded.adminRole || "admin";
+    if (req.adminRole !== "superadmin") {
+      return res.status(403).json({ error: "Superadmin access required" });
+    }
     next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid token" });
@@ -498,7 +520,7 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     // Find admin
     const result = await pool.query(
-      "SELECT id, email, password, approval_status, rejection_reason FROM admins WHERE email = $1",
+      "SELECT id, email, password, approval_status, rejection_reason, role FROM admins WHERE email = $1",
       [email]
     );
     if (result.rows.length === 0) {
@@ -533,7 +555,11 @@ app.post("/api/auth/login", async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { adminId: admin.id, email: admin.email },
+      {
+        adminId: admin.id,
+        email: admin.email,
+        adminRole: admin.role || "admin",
+      },
       JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -542,6 +568,7 @@ app.post("/api/auth/login", async (req, res) => {
       message: "Login successful",
       token,
       admin: { id: admin.id, email: admin.email },
+      adminRole: admin.role || "admin",
     });
   } catch (err) {
     console.error(err);
@@ -566,11 +593,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-// Get pending users (admin only)
-app.get("/api/admin/pending-users", adminAuth, async (req, res) => {
+// Get pending users (superadmin only)
+app.get("/api/admin/pending-users", superadminAuth, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, name, full_name, mobile_number, email, city, plan, created_at FROM admins WHERE approval_status = 'pending' ORDER BY created_at DESC"
+      "SELECT id, name, full_name, mobile_number, email, city, plan, role, created_at FROM admins WHERE approval_status = 'pending' ORDER BY created_at DESC"
     );
     res.json(result.rows);
   } catch (err) {
@@ -579,11 +606,11 @@ app.get("/api/admin/pending-users", adminAuth, async (req, res) => {
   }
 });
 
-// Get all users (admin only)
-app.get("/api/admin/users", adminAuth, async (req, res) => {
+// Get all users (superadmin only)
+app.get("/api/admin/users", superadminAuth, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, name, full_name, mobile_number, email, city, plan, approval_status, rejection_reason, created_at FROM admins WHERE approval_status IN ('pending', 'rejected') ORDER BY created_at DESC"
+      "SELECT id, name, full_name, mobile_number, email, city, plan, approval_status, rejection_reason, role, created_at FROM admins ORDER BY created_at DESC"
     );
     res.json(result.rows);
   } catch (err) {
@@ -592,8 +619,21 @@ app.get("/api/admin/users", adminAuth, async (req, res) => {
   }
 });
 
-// Approve user (admin only)
-app.post("/api/admin/approve-user/:id", adminAuth, async (req, res) => {
+// Get rejected users (superadmin only)
+app.get("/api/admin/rejected-users", superadminAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, full_name, mobile_number, email, city, plan, approval_status, rejection_reason, role, created_at FROM admins WHERE approval_status = 'rejected' ORDER BY created_at DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch rejected users" });
+  }
+});
+
+// Approve user (superadmin only)
+app.post("/api/admin/approve-user/:id", superadminAuth, async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
@@ -602,9 +642,16 @@ app.post("/api/admin/approve-user/:id", adminAuth, async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "User not found or already approved" });
+      // Check if user exists and what status it has
+      const checkResult = await pool.query(
+        "SELECT approval_status FROM admins WHERE id = $1",
+        [id]
+      );
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      } else {
+        return res.status(400).json({ error: "User is not pending" });
+      }
     }
 
     res.json({ message: "User approved successfully", user: result.rows[0] });
@@ -614,8 +661,8 @@ app.post("/api/admin/approve-user/:id", adminAuth, async (req, res) => {
   }
 });
 
-// Reject user (admin only)
-app.post("/api/admin/reject-user/:id", adminAuth, async (req, res) => {
+// Reject user (superadmin only)
+app.post("/api/admin/reject-user/:id", superadminAuth, async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
 
@@ -639,6 +686,199 @@ app.post("/api/admin/reject-user/:id", adminAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to reject user" });
+  }
+});
+
+// Approve rejected user (superadmin only)
+app.post(
+  "/api/admin/approve-rejected-user/:id",
+  superadminAuth,
+  async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await pool.query(
+        "UPDATE admins SET approval_status = 'approved', approved_by = $2, approved_at = CURRENT_TIMESTAMP WHERE id = $1 AND approval_status = 'rejected' RETURNING *",
+        [id, req.adminId]
+      );
+
+      if (result.rows.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "User not found or not rejected" });
+      }
+
+      res.json({ message: "User approved successfully", user: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to approve user" });
+    }
+  }
+);
+
+// Reject approved user (superadmin only)
+app.post(
+  "/api/admin/reject-approved-user/:id",
+  superadminAuth,
+  async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!reason || reason.trim().length === 0) {
+      return res.status(400).json({ error: "Rejection reason is required" });
+    }
+
+    try {
+      const result = await pool.query(
+        "UPDATE admins SET approval_status = 'rejected', rejection_reason = $2 WHERE id = $1 AND approval_status = 'approved' RETURNING *",
+        [id, reason.trim()]
+      );
+
+      if (result.rows.length === 0) {
+        // Check if user exists and what status it has
+        const checkResult = await pool.query(
+          "SELECT approval_status FROM admins WHERE id = $1",
+          [id]
+        );
+        if (checkResult.rows.length === 0) {
+          return res.status(404).json({ error: "User not found" });
+        } else {
+          return res.status(400).json({ error: "User is not approved" });
+        }
+      }
+
+      res.json({ message: "User rejected successfully", user: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to reject user" });
+    }
+  }
+);
+
+// Delete user (superadmin only)
+app.delete("/api/admin/delete-user/:id", superadminAuth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "DELETE FROM admins WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+// Reset user password (superadmin only)
+app.post("/api/admin/reset-password/:id", superadminAuth, async (req, res) => {
+  const { id } = req.params;
+  const { newPassword } = req.body;
+
+  if (!newPassword || newPassword.length < 6) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 6 characters long" });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const result = await pool.query(
+      "UPDATE admins SET password = $1 WHERE id = $2 RETURNING id, email",
+      [hashedPassword, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "Password reset successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to reset password" });
+  }
+});
+
+// Create user (superadmin only)
+app.post("/api/admin/create-user", superadminAuth, async (req, res) => {
+  const {
+    name,
+    fullName,
+    mobileNumber,
+    email,
+    password,
+    city,
+    plan,
+    role = "admin",
+  } = req.body;
+
+  if (
+    !name ||
+    !fullName ||
+    !mobileNumber ||
+    !email ||
+    !password ||
+    !city ||
+    !plan
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 6 characters long" });
+  }
+
+  if (!["admin", "superadmin"].includes(role)) {
+    return res.status(400).json({ error: "Invalid role" });
+  }
+
+  try {
+    // Check if admin already exists
+    const existingAdmin = await pool.query(
+      "SELECT id FROM admins WHERE email = $1",
+      [email]
+    );
+    if (existingAdmin.rows.length > 0) {
+      return res
+        .status(400)
+        .json({ error: "Admin with this email already exists" });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create admin with approved status
+    const result = await pool.query(
+      `INSERT INTO admins (name, full_name, mobile_number, email, password, city, plan, terms_agreed, is_verified, approval_status, role, approved_by, approved_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, true, true, 'approved', $8, $9, CURRENT_TIMESTAMP)
+       RETURNING id, name, full_name, mobile_number, email, city, plan, role, approval_status, created_at`,
+      [
+        name,
+        fullName,
+        mobileNumber,
+        email,
+        hashedPassword,
+        city,
+        plan,
+        role,
+        req.adminId,
+      ]
+    );
+
+    res.status(201).json({
+      message: "User created successfully",
+      user: result.rows[0],
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create user" });
   }
 });
 

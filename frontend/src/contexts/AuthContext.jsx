@@ -53,13 +53,16 @@ export const AuthProvider = ({ children }) => {
       }
 
       setToken(data.token);
-      setAdmin(data.admin);
+      setAdmin({ ...data.admin, role: data.adminRole || "admin" });
 
       // Store in localStorage
       localStorage.setItem("adminToken", data.token);
-      localStorage.setItem("adminData", JSON.stringify(data.admin));
+      localStorage.setItem(
+        "adminData",
+        JSON.stringify({ ...data.admin, role: data.adminRole || "admin" })
+      );
 
-      return { success: true };
+      return { success: true, role: data.adminRole || "admin" };
     } catch (error) {
       return { success: false, error: error.message };
     }
