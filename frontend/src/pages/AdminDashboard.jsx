@@ -56,7 +56,7 @@ function AdminDashboard() {
       if (response.ok) {
         const data = await response.json();
         setModalSubmissions(data);
-        setModalForm(forms.find((f) => f.id === parseInt(formId)));
+        setModalForm(forms.find((f) => f.id === formId));
         setShowModal(true);
       } else {
         setError("Failed to fetch submissions");

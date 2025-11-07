@@ -1,0 +1,10 @@
+{
+  "name": "Test Company",
+  "fullName": "Test User",
+  "mobileNumber": "1234567890",
+  "email": "test@example.com",
+  "password": "password123",
+  "city": "Test City",
+  "plan": "premium",
+  "role": "admin"
+}

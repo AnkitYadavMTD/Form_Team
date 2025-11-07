@@ -144,9 +144,9 @@ function DashboardLayout() {
             <h2>Admin Dashboard</h2>
             <p>Manage your forms and view submissions</p>
           </div>
-          <button onClick={handleLogout} className="logout-btn">
+          {/* <button onClick={handleLogout} className="logout-btn">
             Logout
-          </button>
+          </button> */}
         </div>
       </div>
 

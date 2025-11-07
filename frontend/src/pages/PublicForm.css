@@ -2,7 +2,7 @@
 .public-form-container {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #4facfe 50%, #00f2fe 100%);
   padding: 1rem;
   display: flex;
   align-items: flex-start;
@@ -34,9 +34,9 @@
 }
 
 .form-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #4facfe 50%, #00f2fe 100%);
   color: white;
-  padding: 3rem 2rem;
+  padding: 4rem 2.5rem;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -93,7 +93,7 @@
 
 .form-header h2 {
   margin: 0 0 0.5rem 0;
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
   position: relative;
@@ -102,7 +102,7 @@
 
 .form-subtitle {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   opacity: 0.9;
   font-weight: 400;
   position: relative;
@@ -110,19 +110,19 @@
 }
 
 .form-body {
-  padding: 2.5rem;
+  padding: 3rem;
 }
 
 .form-grid {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
 .form-section {
   background: #f8f9fa;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 2.5rem;
   border: 1px solid #e9ecef;
   transition: all 0.3s ease;
 }
@@ -133,7 +133,7 @@
 }
 
 .section-title {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #2c3e50;
   margin: 0 0 1.5rem 0;
@@ -214,7 +214,7 @@
 }
 
 .submit-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #4facfe 50%, #00f2fe 100%);
   color: white;
   text-align: center;
   padding: 2.5rem;
@@ -467,6 +467,33 @@
   .privacy-note {
     font-size: 0.85rem;
   }
+}
+
+/* Validation icons */
+.validation-icon {
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  opacity: 0.8;
+}
+
+.validation-icon.valid {
+  color: #28a745;
+}
+
+.validation-icon.invalid {
+  color: #dc3545;
+}
+
+/* Field error messages */
+.field-error {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 400;
 }
 
 /* Focus and accessibility improvements */

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import "./Home.css";
 
 function Home() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, admin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,9 +36,11 @@ function Home() {
           <div className="hero-buttons">
             {isAuthenticated ? (
               <>
-                <a href="/admin" className="btn btn-primary">
-                  Create Form
-                </a>
+                {admin?.role !== "superadmin" && (
+                  <a href="/admin" className="btn btn-primary">
+                    Create Form
+                  </a>
+                )}
                 <a href="/admin/dashboard" className="btn btn-secondary">
                   View Dashboard
                 </a>
@@ -131,112 +133,140 @@ function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="pricing">
-        <div className="container">
-          <h2 className="section-title">Choose Your Plan</h2>
-          <p className="pricing-subtitle">
+      <section id="pricing" className="bg-gray-50 py-16 px-6">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            Choose Your Plan
+          </h2>
+          <p className="text-gray-500 mb-12">
             Select the perfect plan for your team's form building needs
           </p>
-          <div className="pricing-grid">
-            <div className="pricing-card">
-              <div className="pricing-header">
-                <h3>BRONZE</h3>
-                <div className="price">
-                  <span className="currency">₹</span>
-                  <span className="amount">499</span>
-                  <span className="period">/30 Days</span>
+
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Bronze */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col hover:shadow-md transition">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-800">BRONZE</h3>
+                <div className="flex items-end justify-center mt-2">
+                  <span className="text-2xl font-bold text-gray-900">₹499</span>
+                  <span className="text-sm text-gray-500 ml-1">/30 Days</span>
                 </div>
-                <div className="original-price">₹2,499.00</div>
+                <div className="text-sm text-gray-400 line-through mt-1">
+                  ₹2,499.00
+                </div>
               </div>
-              <ul className="features-list">
+
+              <ul className="text-sm text-gray-600 space-y-2 mb-6 text-left">
                 <li>Create Unlimited Form</li>
                 <li>User Control Management</li>
                 <li>6 Form Template</li>
                 <li>Collected Data Reports</li>
                 <li>Unlimited Response</li>
-                <li>Extra 499rs For Custom Domain</li>
+                <li>Extra ₹499 for Custom Domain</li>
               </ul>
+
               <button
-                className="btn btn-primary pricing-btn"
+                className="mt-auto bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold py-2 px-4 rounded-lg shadow-sm hover:opacity-90 transition"
                 onClick={() => handleBuyNow("bronze")}
               >
                 BUY NOW
               </button>
             </div>
 
-            <div className="pricing-card popular">
-              <div className="popular-badge">Most Popular</div>
-              <div className="pricing-header">
-                <h3>SILVER</h3>
-                <div className="price">
-                  <span className="currency">₹</span>
-                  <span className="amount">1499</span>
-                  <span className="period">/90 Days</span>
+            {/* Silver (Most Popular) */}
+            <div className="relative bg-white border border-gray-200 rounded-2xl p-6 shadow-md ring-2 ring-blue-400 flex flex-col hover:shadow-lg transition">
+              <span className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                Most Popular
+              </span>
+
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-800">SILVER</h3>
+                <div className="flex items-end justify-center mt-2">
+                  <span className="text-2xl font-bold text-gray-900">
+                    ₹1499
+                  </span>
+                  <span className="text-sm text-gray-500 ml-1">/90 Days</span>
                 </div>
-                <div className="original-price">₹6,249.00</div>
+                <div className="text-sm text-gray-400 line-through mt-1">
+                  ₹6,249.00
+                </div>
               </div>
-              <ul className="features-list">
+
+              <ul className="text-sm text-gray-600 space-y-2 mb-6 text-left">
                 <li>Create Unlimited Form</li>
                 <li>User Control Management</li>
                 <li>6 Form Template</li>
                 <li>Collected Data Reports</li>
                 <li>Unlimited Response</li>
-                <li>Extra 499rs For Custom Domain</li>
+                <li>Extra ₹499 for Custom Domain</li>
               </ul>
+
               <button
-                className="btn btn-primary pricing-btn"
+                className="mt-auto bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold py-2 px-4 rounded-lg shadow-sm hover:opacity-90 transition"
                 onClick={() => handleBuyNow("silver")}
               >
                 BUY NOW
               </button>
             </div>
 
-            <div className="pricing-card">
-              <div className="pricing-header">
-                <h3>GOLD</h3>
-                <div className="price">
-                  <span className="currency">₹</span>
-                  <span className="amount">2999</span>
-                  <span className="period">/150 Days</span>
+            {/* Gold */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col hover:shadow-md transition">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-800">GOLD</h3>
+                <div className="flex items-end justify-center mt-2">
+                  <span className="text-2xl font-bold text-gray-900">
+                    ₹2999
+                  </span>
+                  <span className="text-sm text-gray-500 ml-1">/150 Days</span>
                 </div>
-                <div className="original-price">₹12,499.00</div>
+                <div className="text-sm text-gray-400 line-through mt-1">
+                  ₹12,499.00
+                </div>
               </div>
-              <ul className="features-list">
+
+              <ul className="text-sm text-gray-600 space-y-2 mb-6 text-left">
                 <li>Create Unlimited Form</li>
                 <li>User Control Management</li>
                 <li>6 Form Template</li>
                 <li>Collected Data Reports</li>
                 <li>Unlimited Response</li>
-                <li>Extra 499rs For Custom Domain</li>
+                <li>Extra ₹499 for Custom Domain</li>
               </ul>
+
               <button
-                className="btn btn-primary pricing-btn"
+                className="mt-auto bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold py-2 px-4 rounded-lg shadow-sm hover:opacity-90 transition"
                 onClick={() => handleBuyNow("gold")}
               >
                 BUY NOW
               </button>
             </div>
 
-            <div className="pricing-card">
-              <div className="pricing-header">
-                <h3>PLATINUM</h3>
-                <div className="price">
-                  <span className="currency">₹</span>
-                  <span className="amount">4999</span>
-                  <span className="period">/365 Days</span>
+            {/* Platinum */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col hover:shadow-md transition">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-800">PLATINUM</h3>
+                <div className="flex items-end justify-center mt-2">
+                  <span className="text-2xl font-bold text-gray-900">
+                    ₹4999
+                  </span>
+                  <span className="text-sm text-gray-500 ml-1">/365 Days</span>
                 </div>
-                <div className="original-price">₹29,999.00</div>
+                <div className="text-sm text-gray-400 line-through mt-1">
+                  ₹29,999.00
+                </div>
               </div>
-              <ul className="features-list">
+
+              <ul className="text-sm text-gray-600 space-y-2 mb-6 text-left">
                 <li>Create Unlimited Form</li>
                 <li>User Control Management</li>
                 <li>6 Form Template</li>
                 <li>Collected Data Reports</li>
                 <li>Unlimited Response</li>
-                <li>Extra 499rs For Custom Domain</li>
+                <li>Extra ₹499 for Custom Domain</li>
               </ul>
+
               <button
-                className="btn btn-primary pricing-btn"
+                className="mt-auto bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold py-2 px-4 rounded-lg shadow-sm hover:opacity-90 transition"
                 onClick={() => handleBuyNow("platinum")}
               >
                 BUY NOW
@@ -255,9 +285,11 @@ function Home() {
             streamline their data collection.
           </p>
           {isAuthenticated ? (
-            <a href="/admin" className="btn btn-primary btn-large">
-              Start Building Forms
-            </a>
+            admin?.role !== "superadmin" && (
+              <a href="/admin" className="btn btn-primary btn-large">
+                Start Building Forms
+              </a>
+            )
           ) : (
             <a href="/signin" className="btn btn-primary btn-large">
               Start Building Forms

@@ -1,7 +1,24 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import LoadingMessage from "../components/LoadingMessage";
 import "./PublicForm.css";
+
+// Validation functions
+const validatePAN = (pan) => {
+  const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  return panRegex.test(pan);
+};
+
+const validatePhone = (phone) => {
+  const phoneRegex = /^[6-9]\d{9}$/;
+  return phoneRegex.test(phone);
+};
+
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 function PublicForm() {
   const { id } = useParams();
@@ -9,6 +26,7 @@ function PublicForm() {
   const [responses, setResponses] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldValidation, setFieldValidation] = useState({});
 
   useEffect(() => {
     const fetchForm = async () => {
@@ -43,7 +61,32 @@ function PublicForm() {
   }, [id]);
 
   const handleInputChange = (field, value) => {
-    setResponses({ ...responses, [field]: value });
+    const newResponses = { ...responses, [field]: value };
+    setResponses(newResponses);
+
+    // Real-time validation
+    let isValid = true;
+    let errorMessage = "";
+
+    if (field === "pan" && value) {
+      isValid = validatePAN(value);
+      errorMessage = isValid
+        ? ""
+        : "Invalid PAN format (5 letters, 4 numbers, 1 letter)";
+    } else if (field === "number" && value) {
+      isValid = validatePhone(value);
+      errorMessage = isValid
+        ? ""
+        : "Invalid phone number (10 digits starting with 6-9)";
+    } else if (field === "email" && value) {
+      isValid = validateEmail(value);
+      errorMessage = isValid ? "" : "Invalid email format";
+    }
+
+    setFieldValidation((prev) => ({
+      ...prev,
+      [field]: { isValid, errorMessage },
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -91,10 +134,7 @@ function PublicForm() {
     return (
       <div className="public-form-container">
         <div className="form-card">
-          <div className="loading-message">
-            <div className="loading-spinner"></div>
-            <h2>Loading form...</h2>
-          </div>
+          <LoadingMessage message="Loading form..." />
         </div>
       </div>
     );
@@ -132,12 +172,25 @@ function PublicForm() {
                   </label>
                   <input
                     type="text"
-                    className="form-input"
+                    className={`form-input ${responses.name ? "valid" : ""}`}
                     value={responses.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     placeholder="Enter your full name"
                     required
+                    aria-describedby="name-error"
+                    aria-invalid={
+                      fieldValidation.name && !fieldValidation.name.isValid
+                    }
                   />
+                  {responses.name && (
+                    <span className="validation-icon valid">✅</span>
+                  )}
+                  {fieldValidation.name && !fieldValidation.name.isValid && (
+                    <div id="name-error" className="field-error" role="alert">
+                      <span className="error-icon">⚠️</span>
+                      {fieldValidation.name.errorMessage}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -147,14 +200,44 @@ function PublicForm() {
                   </label>
                   <input
                     type="tel"
-                    className="form-input"
+                    className={`form-input ${
+                      fieldValidation.number && fieldValidation.number.isValid
+                        ? "valid"
+                        : ""
+                    } ${
+                      fieldValidation.number && !fieldValidation.number.isValid
+                        ? "invalid"
+                        : ""
+                    }`}
                     value={responses.number}
                     onChange={(e) =>
                       handleInputChange("number", e.target.value)
                     }
                     placeholder="Enter your phone number"
                     required
+                    aria-describedby="number-error"
+                    aria-invalid={
+                      fieldValidation.number && !fieldValidation.number.isValid
+                    }
                   />
+                  {fieldValidation.number && fieldValidation.number.isValid && (
+                    <span className="validation-icon valid">✅</span>
+                  )}
+                  {fieldValidation.number &&
+                    !fieldValidation.number.isValid && (
+                      <span className="validation-icon invalid">❌</span>
+                    )}
+                  {fieldValidation.number &&
+                    !fieldValidation.number.isValid && (
+                      <div
+                        id="number-error"
+                        className="field-error"
+                        role="alert"
+                      >
+                        <span className="error-icon">⚠️</span>
+                        {fieldValidation.number.errorMessage}
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -165,7 +248,15 @@ function PublicForm() {
                 </label>
                 <input
                   type="text"
-                  className="form-input"
+                  className={`form-input ${
+                    fieldValidation.pan && fieldValidation.pan.isValid
+                      ? "valid"
+                      : ""
+                  } ${
+                    fieldValidation.pan && !fieldValidation.pan.isValid
+                      ? "invalid"
+                      : ""
+                  }`}
                   value={responses.pan}
                   onChange={(e) => {
                     const value = e.target.value.toUpperCase(); // 🔹 auto uppercase
@@ -176,7 +267,23 @@ function PublicForm() {
                   maxLength={10} // PAN always 10 characters
                   pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
                   title="Please enter a valid PAN number (5 letters, 4 numbers, 1 letter)"
+                  aria-describedby="pan-error"
+                  aria-invalid={
+                    fieldValidation.pan && !fieldValidation.pan.isValid
+                  }
                 />
+                {fieldValidation.pan && fieldValidation.pan.isValid && (
+                  <span className="validation-icon valid">✅</span>
+                )}
+                {fieldValidation.pan && !fieldValidation.pan.isValid && (
+                  <span className="validation-icon invalid">❌</span>
+                )}
+                {fieldValidation.pan && !fieldValidation.pan.isValid && (
+                  <div id="pan-error" className="field-error" role="alert">
+                    <span className="error-icon">⚠️</span>
+                    {fieldValidation.pan.errorMessage}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -211,7 +318,9 @@ function PublicForm() {
                         </label>
                         {field.type === "textarea" ? (
                           <textarea
-                            className="form-input form-textarea"
+                            className={`form-input form-textarea ${
+                              responses[fieldKey] ? "valid" : ""
+                            }`}
                             value={responses[fieldKey] || ""}
                             onChange={(e) =>
                               handleInputChange(fieldKey, e.target.value)
@@ -219,18 +328,61 @@ function PublicForm() {
                             placeholder={`Enter ${field.label.toLowerCase()}`}
                             required={field.required}
                             rows="4"
+                            aria-describedby={`${fieldKey}-error`}
+                            aria-invalid={
+                              fieldValidation[fieldKey] &&
+                              !fieldValidation[fieldKey].isValid
+                            }
                           />
                         ) : (
                           <input
                             type={field.type || "text"}
-                            className="form-input"
+                            className={`form-input ${
+                              fieldValidation[fieldKey] &&
+                              fieldValidation[fieldKey].isValid
+                                ? "valid"
+                                : ""
+                            } ${
+                              fieldValidation[fieldKey] &&
+                              !fieldValidation[fieldKey].isValid
+                                ? "invalid"
+                                : ""
+                            }`}
                             value={responses[fieldKey] || ""}
                             onChange={(e) =>
                               handleInputChange(fieldKey, e.target.value)
                             }
                             placeholder={`Enter ${field.label.toLowerCase()}`}
                             required={field.required}
+                            aria-describedby={`${fieldKey}-error`}
+                            aria-invalid={
+                              fieldValidation[fieldKey] &&
+                              !fieldValidation[fieldKey].isValid
+                            }
                           />
+                        )}
+                        {fieldValidation[fieldKey] ? (
+                          fieldValidation[fieldKey].isValid ? (
+                            <span className="validation-icon valid">✅</span>
+                          ) : (
+                            <>
+                              <span className="validation-icon invalid">
+                                ❌
+                              </span>
+                              <div
+                                id={`${fieldKey}-error`}
+                                className="field-error"
+                                role="alert"
+                              >
+                                <span className="error-icon">⚠️</span>
+                                {fieldValidation[fieldKey].errorMessage}
+                              </div>
+                            </>
+                          )
+                        ) : (
+                          responses[fieldKey] && (
+                            <span className="validation-icon valid">✅</span>
+                          )
                         )}
                       </div>
                     );

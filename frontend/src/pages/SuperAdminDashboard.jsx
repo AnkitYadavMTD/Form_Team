@@ -236,6 +236,7 @@ function SuperAdminDashboard() {
     try {
       await apiCall("/api/admin/create-user", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser),
       });
 
