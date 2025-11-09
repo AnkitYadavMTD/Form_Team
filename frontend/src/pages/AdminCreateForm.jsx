@@ -2,157 +2,122 @@ import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import "./AdminCreateForm.css";
 
+const formTemplates = {
+  personal: {
+    name: "Personal Information",
+    fields: [
+      { label: "Full Name", type: "text", required: true, icon: "👤" },
+      { label: "Phone Number", type: "text", required: true, icon: "📞" },
+      { label: "PAN Number", type: "text", required: true, icon: "🆔" },
+    ],
+  },
+  contact: {
+    name: "Contact Form",
+    fields: [
+      { label: "Name", type: "text", required: true, icon: "👤" },
+      { label: "Email", type: "email", required: true, icon: "📧" },
+      { label: "Message", type: "textarea", required: false, icon: "📝" },
+    ],
+  },
+  event: {
+    name: "Event Registration",
+    fields: [
+      { label: "Name", type: "text", required: true, icon: "👤" },
+      { label: "Email", type: "email", required: true, icon: "📧" },
+      { label: "Phone", type: "text", required: true, icon: "📞" },
+      { label: "Event Date", type: "date", required: true, icon: "📅" },
+    ],
+  },
+  survey: {
+    name: "Basic Survey",
+    fields: [
+      { label: "Question 1", type: "text", required: true, icon: "❓" },
+      { label: "Question 2", type: "text", required: true, icon: "❓" },
+      { label: "Question 3", type: "textarea", required: false, icon: "📝" },
+    ],
+  },
+  job: {
+    name: "Job Application",
+    fields: [
+      { label: "Full Name", type: "text", required: true, icon: "👤" },
+      { label: "Email", type: "email", required: true, icon: "📧" },
+      { label: "Phone", type: "text", required: true, icon: "📞" },
+      {
+        label: "Position Applied For",
+        type: "text",
+        required: true,
+        icon: "💼",
+      },
+      {
+        label: "Experience (years)",
+        type: "number",
+        required: false,
+        icon: "📈",
+      },
+    ],
+  },
+  feedback: {
+    name: "Customer Feedback",
+    fields: [
+      { label: "Name", type: "text", required: true, icon: "👤" },
+      { label: "Email", type: "email", required: true, icon: "📧" },
+      { label: "Rating (1-5)", type: "number", required: true, icon: "⭐" },
+      { label: "Comments", type: "textarea", required: false, icon: "💬" },
+    ],
+  },
+  newsletter: {
+    name: "Newsletter Signup",
+    fields: [
+      { label: "Name", type: "text", required: true, icon: "👤" },
+      { label: "Email", type: "email", required: true, icon: "📧" },
+    ],
+  },
+  support: {
+    name: "Support Request",
+    fields: [
+      { label: "Name", type: "text", required: true, icon: "👤" },
+      { label: "Email", type: "email", required: true, icon: "📧" },
+      { label: "Issue Type", type: "text", required: true, icon: "🔧" },
+      { label: "Description", type: "textarea", required: true, icon: "📝" },
+    ],
+  },
+  quote: {
+    name: "Quote Request",
+    fields: [
+      { label: "Name", type: "text", required: true, icon: "👤" },
+      { label: "Email", type: "email", required: true, icon: "📧" },
+      { label: "Company", type: "text", required: false, icon: "🏢" },
+      { label: "Service Needed", type: "textarea", required: true, icon: "🛠️" },
+      { label: "Budget Range", type: "text", required: false, icon: "💰" },
+    ],
+  },
+};
+
 function AdminCreateForm() {
   const [formTitle, setFormTitle] = useState("");
+  const [enableRedirect, setEnableRedirect] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [customFields, setCustomFields] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [showAddFieldModal, setShowAddFieldModal] = useState(false);
   const [newFieldLabel, setNewFieldLabel] = useState("");
   const [newFieldType, setNewFieldType] = useState("text");
   const [newFieldRequired, setNewFieldRequired] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState("");
 
-  // Define 6 form templates
-  const formTemplates = {
-    contact: {
-      name: "Contact Form",
-      fields: [
-        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
-        { id: 2, label: "Subject", type: "text", required: false, icon: "📄" },
-        {
-          id: 3,
-          label: "Message",
-          type: "textarea",
-          required: false,
-          icon: "📝",
-        },
-      ],
-    },
-    registration: {
-      name: "Registration Form",
-      fields: [
-        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
-        { id: 2, label: "Phone", type: "text", required: false, icon: "📞" },
-        {
-          id: 3,
-          label: "Date of Birth",
-          type: "date",
-          required: false,
-          icon: "📅",
-        },
-        {
-          id: 4,
-          label: "Address",
-          type: "textarea",
-          required: false,
-          icon: "🏠",
-        },
-      ],
-    },
-    survey: {
-      name: "Survey Form",
-      fields: [
-        {
-          id: 1,
-          label: "Age Group",
-          type: "text",
-          required: false,
-          icon: "👤",
-        },
-        {
-          id: 2,
-          label: "Feedback",
-          type: "textarea",
-          required: false,
-          icon: "📝",
-        },
-        {
-          id: 3,
-          label: "Rating (1-5)",
-          type: "number",
-          required: false,
-          icon: "⭐",
-        },
-      ],
-    },
-    feedback: {
-      name: "Feedback Form",
-      fields: [
-        {
-          id: 1,
-          label: "Overall Experience",
-          type: "text",
-          required: false,
-          icon: "😊",
-        },
-        {
-          id: 2,
-          label: "Suggestions",
-          type: "textarea",
-          required: false,
-          icon: "💡",
-        },
-        {
-          id: 3,
-          label: "Would Recommend",
-          type: "text",
-          required: false,
-          icon: "👍",
-        },
-      ],
-    },
-    event: {
-      name: "Event Registration",
-      fields: [
-        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
-        { id: 2, label: "Phone", type: "text", required: false, icon: "📞" },
-        {
-          id: 3,
-          label: "Organization",
-          type: "text",
-          required: false,
-          icon: "🏢",
-        },
-        {
-          id: 4,
-          label: "Special Requirements",
-          type: "textarea",
-          required: false,
-          icon: "📋",
-        },
-      ],
-    },
-    job: {
-      name: "Job Application",
-      fields: [
-        { id: 1, label: "Email", type: "email", required: false, icon: "📧" },
-        { id: 2, label: "Phone", type: "text", required: false, icon: "📞" },
-        {
-          id: 3,
-          label: "Experience (years)",
-          type: "number",
-          required: false,
-          icon: "💼",
-        },
-        {
-          id: 4,
-          label: "Resume Link",
-          type: "text",
-          required: false,
-          icon: "📎",
-        },
-        {
-          id: 5,
-          label: "Cover Letter",
-          type: "textarea",
-          required: false,
-          icon: "📝",
-        },
-      ],
-    },
+  const handleTemplateSelect = (templateKey) => {
+    setSelectedTemplate(templateKey);
+    if (templateKey && formTemplates[templateKey]) {
+      const templateFields = formTemplates[templateKey].fields.map((field) => ({
+        ...field,
+        id: Date.now() + Math.random(),
+      }));
+      setCustomFields(templateFields);
+    } else {
+      setCustomFields([]);
+    }
   };
 
   const handleAddField = () => {
@@ -161,14 +126,16 @@ function AdminCreateForm() {
 
   const handleSaveField = () => {
     if (newFieldLabel.trim()) {
-      const newField = {
+      const fieldData = {
         id: Date.now(),
         label: newFieldLabel.trim(),
         type: newFieldType,
         required: newFieldRequired,
         icon: getFieldIcon(newFieldType),
       };
-      setCustomFields([...customFields, newField]);
+
+      setCustomFields([...customFields, fieldData]);
+
       setNewFieldLabel("");
       setNewFieldType("text");
       setNewFieldRequired(false);
@@ -183,13 +150,8 @@ function AdminCreateForm() {
     setShowAddFieldModal(false);
   };
 
-  const handleTemplateSelect = (templateKey) => {
-    setSelectedTemplate(templateKey);
-    if (templateKey && formTemplates[templateKey]) {
-      setCustomFields(formTemplates[templateKey].fields);
-    } else {
-      setCustomFields([]);
-    }
+  const handleDeleteField = (fieldId) => {
+    setCustomFields(customFields.filter((field) => field.id !== fieldId));
   };
 
   const toggleFieldRequired = (fieldId) => {
@@ -232,7 +194,7 @@ function AdminCreateForm() {
         },
         body: JSON.stringify({
           title: formTitle,
-          redirect_url: redirectUrl,
+          redirect_url: enableRedirect ? redirectUrl : "",
           fields: customFields,
         }),
       });
@@ -242,6 +204,7 @@ function AdminCreateForm() {
         setMessage(`Form created successfully! Form ID: ${data.id}`);
         setMessageType("success");
         setFormTitle("");
+        setEnableRedirect(false);
         setRedirectUrl("");
         setCustomFields([]);
         setSelectedTemplate("");
@@ -281,41 +244,50 @@ function AdminCreateForm() {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="redirectUrl">Redirect URL</label>
-            <input
-              id="redirectUrl"
-              type="url"
-              value={redirectUrl}
-              onChange={(e) => setRedirectUrl(e.target.value)}
-              placeholder="https://example.com/thank-you"
-              required
-              className="form-input"
-            />
-            <small className="form-help">
-              Users will be redirected here after form submission
-            </small>
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={enableRedirect}
+                onChange={(e) => setEnableRedirect(e.target.checked)}
+              />
+              <span className="checkmark"></span>
+              Enable redirect after form submission
+            </label>
           </div>
+          {enableRedirect && (
+            <div className="form-group">
+              <label htmlFor="redirectUrl">Redirect URL</label>
+              <input
+                id="redirectUrl"
+                type="url"
+                value={redirectUrl}
+                onChange={(e) => setRedirectUrl(e.target.value)}
+                placeholder="https://example.com/thank-you"
+                required={enableRedirect}
+                className="form-input"
+              />
+              <small className="form-help">
+                Users will be redirected here after form submission
+              </small>
+            </div>
+          )}
 
           <div className="form-group">
-            <label htmlFor="templateSelect">Choose a Template (Optional)</label>
+            <label htmlFor="templateSelect">Choose Template (Optional)</label>
             <select
               id="templateSelect"
               value={selectedTemplate}
               onChange={(e) => handleTemplateSelect(e.target.value)}
               className="form-input"
             >
-              <option value="">Custom (No Template)</option>
+              <option value="">Start with blank form</option>
               {Object.entries(formTemplates).map(([key, template]) => (
                 <option key={key} value={key}>
                   {template.name}
                 </option>
               ))}
             </select>
-            <small className="form-help">
-              Select a template to pre-populate fields, or choose Custom to
-              start from scratch
-            </small>
           </div>
 
           <div className="form-fields-info">
@@ -348,6 +320,17 @@ function AdminCreateForm() {
                   {field.required && (
                     <span className="field-required">Required</span>
                   )}
+
+                  <div className="field-actions">
+                    <button
+                      type="button"
+                      className="delete-field-btn"
+                      onClick={() => handleDeleteField(field.id)}
+                      title="Delete field"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -433,7 +416,7 @@ function AdminCreateForm() {
                   className="save-btn"
                   onClick={handleSaveField}
                 >
-                  Add Field
+                  {editingFieldId ? "Update Field" : "Add Field"}
                 </button>
               </div>
             </div>

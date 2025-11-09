@@ -1,12 +1,7 @@
-# PublicForm.css Improvements TODO
-
-- [ ] Update background gradient to modern blue-to-teal
-- [ ] Increase header h2 font size from 2.2rem to 2.5rem
-- [ ] Increase subtitle font size from 1.1rem to 1.2rem
-- [ ] Increase section titles font size from 1.4rem to 1.6rem
-- [ ] Increase form labels font size from 1rem to 1.1rem
-- [ ] Increase form inputs font size from 1rem to 1.1rem
-- [ ] Increase submit button font size from 1.2rem to 1.3rem
-- [ ] Improve layout spacing: form-body padding to 3rem, form-section padding to 2.5rem, add more margin between sections
-- [ ] Enhance animations and hover effects for better interactivity
-- [ ] Ensure responsive design is maintained and improved for smaller screens
+- [ ] Remove formTemplates object and template selection logic to prevent auto-adding fields
+- [ ] Add enableRedirect state (boolean, default false)
+- [ ] Replace redirect URL input with checkbox for enabling redirect
+- [ ] Conditionally display URL input field only when redirect is enabled
+- [ ] Update form validation: make redirectUrl required only if enableRedirect is true
+- [ ] Modify handleSubmit to send redirect_url only if enabled
+- [ ] Ensure customFields initialize empty and only populated via Add Field

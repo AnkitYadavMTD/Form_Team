@@ -16,10 +16,31 @@ import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Thanks from "./pages/Thanks";
+import Settings from "./pages/Settings";
 import { useAuth } from "./contexts/AuthContext";
 import LoadingMessage from "./components/LoadingMessage";
 import GlobalLoader from "./components/GlobalLoader";
 import "./App.css";
+
+// Helper function to generate random colors for avatar placeholders
+const getRandomColor = (name, offset = 0) => {
+  const colors = [
+    "#667eea",
+    "#764ba2",
+    "#f093fb",
+    "#f5576c",
+    "#4facfe",
+    "#00f2fe",
+    "#43e97b",
+    "#38f9d7",
+    "#fa709a",
+    "#fee140",
+    "#a8edea",
+    "#fed6e3",
+  ];
+  const index = (name.charCodeAt(0) + offset) % colors.length;
+  return colors[index];
+};
 
 function AppContent() {
   const location = useLocation();
@@ -72,6 +93,11 @@ function AppContent() {
               >
                 <span className="logo-text">RT Form</span>
               </div>
+              {authenticated && (
+                <div className="welcome-text">
+                  Welcome, {admin?.name?.split(" ")[0]}!
+                </div>
+              )}
             </div>
             {!isPublicForm && !isAuthPage && (
               <>
@@ -167,7 +193,17 @@ function AppContent() {
                             className="user-avatar"
                           />
                         ) : (
-                          <div className="user-avatar-placeholder">
+                          <div
+                            className="user-avatar-placeholder"
+                            style={{
+                              background: `linear-gradient(135deg, ${getRandomColor(
+                                admin?.name || "User"
+                              )} 0%, ${getRandomColor(
+                                admin?.name || "User",
+                                1
+                              )} 100%)`,
+                            }}
+                          >
                             {admin?.name?.charAt(0).toUpperCase()}
                           </div>
                         )}
@@ -190,7 +226,7 @@ function AppContent() {
                           </button>
                           <button
                             onClick={() => {
-                              // Navigate to settings page (to be implemented)
+                              navigate("/settings");
                               setIsUserMenuOpen(false);
                             }}
                             className="dropdown-item"
@@ -267,6 +303,12 @@ function AppContent() {
               }
             />
             <Route path="/form/:id" element={<PublicForm />} />
+            <Route
+              path="/settings"
+              element={
+                isAuthenticated() ? <Settings /> : <Navigate to="/signin" />
+              }
+            />
             <Route
               path="/"
               element={

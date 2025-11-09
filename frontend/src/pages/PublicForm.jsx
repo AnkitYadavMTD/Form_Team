@@ -157,7 +157,7 @@ function PublicForm() {
           )}
 
           <form onSubmit={handleSubmit} className="form-grid">
-            {/* Personal Information Section */}
+            {/* Personal Information Section
             <div className="form-section">
               <h3 className="section-title">
                 <span className="section-icon">👤</span>
@@ -285,7 +285,7 @@ function PublicForm() {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Dynamic Fields Section */}
             {formData.fields &&
