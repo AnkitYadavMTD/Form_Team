@@ -185,6 +185,13 @@ function AdminCreateForm() {
     setMessage("");
     setMessageType("");
 
+    if (customFields.length === 0) {
+      setMessage("Error: At least one field is required to create a form.");
+      setMessageType("error");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/forms", {
         method: "POST",

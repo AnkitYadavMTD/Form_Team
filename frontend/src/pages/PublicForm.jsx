@@ -78,6 +78,11 @@ function PublicForm() {
       errorMessage = isValid
         ? ""
         : "Invalid phone number (10 digits starting with 6-9)";
+    } else if (field.toLowerCase().includes("phone") && value) {
+      isValid = validatePhone(value);
+      errorMessage = isValid
+        ? ""
+        : "Invalid phone number (10 digits starting with 6-9)";
     } else if (field === "email" && value) {
       isValid = validateEmail(value);
       errorMessage = isValid ? "" : "Invalid email format";
@@ -302,9 +307,9 @@ function PublicForm() {
                       .toLowerCase()
                       .replace(/\s+/g, "_");
                     // Skip phone number field if it's already in the default fields
-                    if (field.label.toLowerCase().includes("phone")) {
-                      return null;
-                    }
+                    // if (field.label.toLowerCase().includes("phone")) {
+                    //   return null;
+                    // }
                     return (
                       <div key={index} className="form-group">
                         <label className="form-label">

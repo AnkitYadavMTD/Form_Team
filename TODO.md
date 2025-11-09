@@ -1,7 +1,1 @@
-- [ ] Remove formTemplates object and template selection logic to prevent auto-adding fields
-- [ ] Add enableRedirect state (boolean, default false)
-- [ ] Replace redirect URL input with checkbox for enabling redirect
-- [ ] Conditionally display URL input field only when redirect is enabled
-- [ ] Update form validation: make redirectUrl required only if enableRedirect is true
-- [ ] Modify handleSubmit to send redirect_url only if enabled
-- [ ] Ensure customFields initialize empty and only populated via Add Field
+- [x] Add validation in AdminCreateForm.jsx handleSubmit to require at least one field before form creation

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 
 const AuthContext = createContext();
 
@@ -14,6 +14,19 @@ export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const inactivityTimeoutRef = useRef(null);
+
+  const resetInactivityTimer = () => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+    if (token) {
+      inactivityTimeoutRef.current = setTimeout(() => {
+        logout();
+        alert("You have been logged out due to inactivity.");
+      }, 60 * 60 * 1000); // 1 hour
+    }
+  };
 
   useEffect(() => {
     // Check for stored token on app load
@@ -26,6 +39,31 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    resetInactivityTimer();
+
+    const handleActivity = () => resetInactivityTimer();
+
+    // Add event listeners for user activity
+    window.addEventListener("mousedown", handleActivity);
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("keypress", handleActivity);
+    window.addEventListener("scroll", handleActivity);
+    window.addEventListener("touchstart", handleActivity);
+
+    return () => {
+      // Cleanup event listeners
+      window.removeEventListener("mousedown", handleActivity);
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("keypress", handleActivity);
+      window.removeEventListener("scroll", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+      }
+    };
+  }, [token]);
 
   const login = async (email, password) => {
     try {
