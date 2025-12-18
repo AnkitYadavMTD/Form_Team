@@ -1173,11 +1173,19 @@ app.post("/api/campaigns/:id/regenerate-tracking-link", adminAuth, async (req, r
 
 // Public tracking redirect endpoint - no authentication required
 app.get("/track*", async (req, res) => {
-  const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+  // More robust FRONTEND_URL handling with multiple fallbacks
+  const FRONTEND_URL = process.env.FRONTEND_URL ||
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+    process.env.RENDER_EXTERNAL_URL ||
+    "http://localhost:5173";
+
+  console.log(`🔗 Tracking redirect - FRONTEND_URL: ${FRONTEND_URL}`);
+
   const path = req.path;
   const trackingLink = path === '/track' ? '' : path.replace('/track/', '');
 
   if (!trackingLink) {
+    console.log(`❌ Invalid tracking link: ${path}`);
     return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=invalid`);
   }
 
@@ -1189,15 +1197,18 @@ app.get("/track*", async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+      console.log(`❌ Campaign not found for tracking link: ${trackingLink}`);
       return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=not_found`);
     }
 
     const campaign = result.rows[0];
+    console.log(`📊 Campaign found: ID=${campaign.id}, Status=${campaign.status}`);
 
     // Check if campaign is stopped or expired (case-insensitive)
     const status = campaign.status.toLowerCase();
     if (status === "stop" || status === "expire") {
       const reason = status === "stop" ? "stop" : "expire";
+      console.log(`🛑 Campaign ${status} - redirecting to stop page with reason: ${reason}`);
       return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=${reason}`);
     }
 
@@ -1215,6 +1226,7 @@ app.get("/track*", async (req, res) => {
       // Click logging is optional, don't fail if table missing
     }
 
+    console.log(`✅ Redirecting to offer URL: ${campaign.offer_url}`);
     // Redirect to offer URL
     res.redirect(campaign.offer_url);
   } catch (err) {
