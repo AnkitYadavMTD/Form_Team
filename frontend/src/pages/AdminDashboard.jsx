@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import "./AdminDashboard.css";
 
@@ -7,10 +8,14 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const { logout, getAuthHeaders } = useAuth();
 
+  const [activeTab, setActiveTab] = useState("forms");
   const [forms, setForms] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [formsLoading, setFormsLoading] = useState(false);
+  const [campaignsLoading, setCampaignsLoading] = useState(false);
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
   const [viewMode, setViewMode] = useState("table"); // 'grid' or 'table'
@@ -18,8 +23,10 @@ function AdminDashboard() {
   const [modalSubmissions, setModalSubmissions] = useState([]);
   const [modalForm, setModalForm] = useState(null);
 
+  // Fetch both forms and campaigns once on component mount
   useEffect(() => {
     fetchForms();
+    fetchCampaigns();
   }, []);
 
   const handleLogout = () => {
@@ -28,7 +35,7 @@ function AdminDashboard() {
   };
 
   const fetchForms = async () => {
-    setLoading(true);
+    setFormsLoading(true);
     try {
       const response = await fetch("/api/forms", {
         headers: getAuthHeaders(),
@@ -43,8 +50,94 @@ function AdminDashboard() {
       setError("Error fetching forms");
       console.error(err);
     } finally {
+      setFormsLoading(false);
+    }
+  };
+
+  const fetchCampaigns = async () => {
+    setCampaignsLoading(true);
+    try {
+      const response = await fetch("/api/campaigns", {
+        headers: getAuthHeaders(),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const campaignsList = Array.isArray(data)
+          ? data
+          : data && data.success && Array.isArray(data.data)
+          ? data.data
+          : [];
+        setCampaigns(campaignsList);
+      } else {
+        setError("Failed to fetch campaigns");
+      }
+    } catch (err) {
+      setError("Error fetching campaigns");
+      console.error(err);
+    } finally {
+      setCampaignsLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount, currency) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency || 'USD',
+    }).format(amount || 0);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const deleteCampaign = async (campaignId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this campaign? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/campaigns/${campaignId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (response.ok) {
+        await fetchCampaigns();
+        setError("");
+      } else {
+        setError("Failed to delete campaign");
+      }
+    } catch (err) {
+      setError("Error deleting campaign");
+      console.error(err);
+    } finally {
       setLoading(false);
     }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Tracking link copied to clipboard!', {
+      position: 'bottom-right',
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
+
+  const getTrackingUrl = (trackingLink) => {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/track/${trackingLink}`;
   };
 
   const fetchSubmissions = async (formId) => {
@@ -142,17 +235,32 @@ function AdminDashboard() {
         <div className="header-content">
           <div>
             <h2>Admin Dashboard</h2>
-            <p>Manage your forms and view submissions</p>
+            <p>Manage your forms and campaigns</p>
           </div>
-          {/* <button onClick={handleLogout} className="logout-btn">
-            Logout
-          </button> */}
         </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
+      {/* Tab Navigation */}
+      <div className="dashboard-tabs" style={{ paddingLeft: '30px' }}>
+        <button
+          onClick={() => setActiveTab("forms")}
+          className={`tab-btn ${activeTab === "forms" ? "active" : ""}`}
+        >
+          All Forms
+        </button>
+        <button
+          onClick={() => setActiveTab("campaigns")}
+          className={`tab-btn ${activeTab === "campaigns" ? "active" : ""}`}
+        >
+          All Campaigns
+        </button>
+      </div>
+
       <div className="dashboard-content">
+        {/* Forms Tab */}
+        {activeTab === "forms" && (
         <div className="forms-section">
           <div className="section-header">
             <div className="section-header-content">
@@ -169,7 +277,7 @@ function AdminDashboard() {
             </div>
           </div>
 
-          {loading ? (
+          {formsLoading ? (
             <div className="loading-message">Loading forms...</div>
           ) : viewMode === "grid" ? (
             <div className="forms-grid">
@@ -294,6 +402,106 @@ function AdminDashboard() {
             </div>
           )}
         </div>
+        )}
+
+        {/* Persistent table removed to avoid duplication with tabs */}
+
+        {/* Campaigns Tab */}
+        {activeTab === "campaigns" && (
+        <div className="campaigns-section">
+          <div className="section-header">
+            <h3>Your Campaigns</h3>
+          </div>
+
+          {campaignsLoading ? (
+            <div className="loading-message">Loading campaigns...</div>
+          ) : (Array.isArray(campaigns) && campaigns.length === 0) ? (
+            <div className="no-campaigns">
+              <div>No campaigns found</div>
+              <small>Create your first campaign to get started</small>
+            </div>
+          ) : (
+            <div className="campaigns-table-container">
+              <table className="campaigns-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Advertiser</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Payout</th>
+                    <th>Conversion</th>
+                    <th>Tracking Link</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(Array.isArray(campaigns) ? campaigns : []).map((campaign) => (
+                    <tr key={campaign.id}>
+                      <td>{campaign.name}</td>
+                      <td>{campaign.advertiser}</td>
+                      <td>{campaign.category}</td>
+                      <td>
+                        <span className={`status-badge ${campaign.status}`}>
+                          {campaign.status}
+                        </span>
+                      </td>
+                      <td>
+                        {formatCurrency(campaign.payout_amount, campaign.currency)}
+                        <br />
+                        <small style={{ color: '#666' }}>
+                          {campaign.payout_type}
+                        </small>
+                      </td>
+                      <td>{campaign.conversion_event}</td>
+                      <td>
+                        {campaign.tracking_link ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <code style={{ fontSize: '13px', color: '#667eea', fontWeight: '600', letterSpacing: '0.5px' }}>
+                              {campaign.tracking_link}
+                            </code>
+                            <button
+                              onClick={() => copyToClipboard(getTrackingUrl(campaign.tracking_link))}
+                              className="action-btn btn-small"
+                              title="Copy tracking URL"
+                              style={{ minWidth: 'auto', padding: '4px 8px' }}
+                            >
+                              📋
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={{ color: '#999' }}>—</span>
+                        )}
+                      </td>
+                      <td>{formatDate(campaign.created_at)}</td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            onClick={() => navigate(`/admin/campaigns/${campaign.id}/edit`)}
+                            className="action-btn btn-info btn-small"
+                            title="Edit Campaign"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => deleteCampaign(campaign.id)}
+                            className="action-btn btn-danger btn-small"
+                            title="Delete Campaign"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+        )}
+
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>

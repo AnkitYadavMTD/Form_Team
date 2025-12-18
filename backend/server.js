@@ -85,6 +85,16 @@ function generateFormId() {
   return result;
 }
 
+// Generate unique short tracking link (base62)
+function generateTrackingLink() {
+  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = "";
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 // Create new form (admin only)
 app.post("/api/forms", adminAuth, async (req, res) => {
   const { title, redirect_url, fields } = req.body;
@@ -335,11 +345,6 @@ app.post("/api/auth/send-otp", async (req, res) => {
     // Log OTP for development
     console.log(`OTP for ${email}: ${otp} (expires in 10 minutes)`);
 
-    // For development: Log OTP instead of sending email
-    console.log(`OTP for ${email}: ${otp} (expires in 10 minutes)`);
-
-    // Uncomment the following code to enable email sending in production
-
     // Send email
     const mailOptions = {
       from: '"RT Form" <rtform2025@gmail.com>',
@@ -360,16 +365,8 @@ app.post("/api/auth/send-otp", async (req, res) => {
       `,
     };
 
-    console.log("Attempting to send email with options:", {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject,
-      otp: otp,
-    });
-
     try {
       await transporter.sendMail(mailOptions);
-      console.log("Email sent successfully");
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
       throw emailError;
@@ -879,6 +876,346 @@ app.post("/api/admin/create-user", superadminAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to create user" });
+  }
+});
+
+// Campaign endpoints
+
+// Create new campaign (admin only)
+app.post("/api/campaigns", adminAuth, async (req, res) => {
+  const {
+    name,
+    advertiser,
+    category,
+    status = "draft",
+    payout_type,
+    payout_amount,
+    currency = "USD",
+    conversion_event,
+    sale_percentage,
+    offer_url,
+    tracking_parameters = {},
+    postback_url,
+  } = req.body;
+
+  // Validate required fields
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: "Campaign name is required" });
+  }
+  if (!advertiser || !advertiser.trim()) {
+    return res.status(400).json({ error: "Advertiser is required" });
+  }
+  if (!category || !category.trim()) {
+    return res.status(400).json({ error: "Category is required" });
+  }
+  if (!payout_type || !payout_type.trim()) {
+    return res.status(400).json({ error: "Payout type is required" });
+  }
+  if (payout_amount === null || payout_amount === undefined || payout_amount === "") {
+    return res.status(400).json({ error: "Payout amount is required" });
+  }
+  if (isNaN(payout_amount) || payout_amount <= 0) {
+    return res.status(400).json({ error: "Payout amount must be a positive number" });
+  }
+  if (!conversion_event || !conversion_event.trim()) {
+    return res.status(400).json({ error: "Conversion event is required" });
+  }
+  if (!offer_url || !offer_url.trim()) {
+    return res.status(400).json({ error: "Offer URL is required" });
+  }
+
+  try {
+    // Generate unique tracking link
+    let trackingLink;
+    let isUnique = false;
+    while (!isUnique) {
+      trackingLink = generateTrackingLink();
+      const existing = await pool.query("SELECT id FROM campaigns WHERE tracking_link = $1", [
+        trackingLink,
+      ]);
+      if (existing.rows.length === 0) {
+        isUnique = true;
+      }
+    }
+
+    const result = await pool.query(
+      `INSERT INTO campaigns (admin_id, name, advertiser, category, status, payout_type, payout_amount, currency, conversion_event, sale_percentage, offer_url, tracking_parameters, postback_url, tracking_link)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+       RETURNING *`,
+      [
+        req.adminId,
+        name.trim(),
+        advertiser.trim(),
+        category.trim(),
+        status,
+        payout_type.trim(),
+        parseFloat(payout_amount),
+        currency,
+        conversion_event.trim(),
+        sale_percentage ? parseFloat(sale_percentage) : null,
+        offer_url.trim(),
+        JSON.stringify(tracking_parameters || {}),
+        postback_url ? postback_url.trim() : null,
+        trackingLink,
+      ]
+    );
+    res.status(201).json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    console.error("Create campaign error:", err);
+    res.status(500).json({ error: "Failed to create campaign", details: err.message });
+  }
+});
+
+// Get all campaigns (admin only)
+app.get("/api/campaigns", adminAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM campaigns WHERE admin_id = $1 ORDER BY created_at DESC",
+      [req.adminId]
+    );
+    res.json({ success: true, data: result.rows, count: result.rows.length });
+  } catch (err) {
+    console.error("Get campaigns error:", err);
+    res.status(500).json({ success: false, error: "Failed to fetch campaigns", details: err.message });
+  }
+});
+
+// Get campaign by ID (admin only)
+app.get("/api/campaigns/:id", adminAuth, async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id || !id.trim()) {
+    return res.status(400).json({ success: false, error: "Campaign ID is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM campaigns WHERE id = $1 AND admin_id = $2",
+      [id.trim(), req.adminId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Campaign not found" });
+    }
+    res.json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    console.error("Get campaign error:", err);
+    res.status(500).json({ success: false, error: "Failed to fetch campaign", details: err.message });
+  }
+});
+
+// Update campaign (admin only)
+app.put("/api/campaigns/:id", adminAuth, async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id || !id.trim()) {
+    return res.status(400).json({ success: false, error: "Campaign ID is required" });
+  }
+
+  const {
+    name,
+    advertiser,
+    category,
+    status,
+    payout_type,
+    payout_amount,
+    currency,
+    conversion_event,
+    sale_percentage,
+    offer_url,
+    tracking_parameters,
+    postback_url,
+  } = req.body;
+
+  // Validate payout_amount if provided
+  if (payout_amount !== null && payout_amount !== undefined && payout_amount !== "") {
+    if (isNaN(payout_amount) || payout_amount <= 0) {
+      return res.status(400).json({ success: false, error: "Payout amount must be a positive number" });
+    }
+  }
+
+  // Validate sale_percentage if provided
+  if (sale_percentage !== null && sale_percentage !== undefined && sale_percentage !== "") {
+    if (isNaN(sale_percentage) || sale_percentage < 0 || sale_percentage > 100) {
+      return res.status(400).json({ success: false, error: "Sale percentage must be between 0 and 100" });
+    }
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE campaigns SET
+        name = COALESCE($1, name),
+        advertiser = COALESCE($2, advertiser),
+        category = COALESCE($3, category),
+        status = COALESCE($4, status),
+        payout_type = COALESCE($5, payout_type),
+        payout_amount = COALESCE($6, payout_amount),
+        currency = COALESCE($7, currency),
+        conversion_event = COALESCE($8, conversion_event),
+        sale_percentage = COALESCE($9, sale_percentage),
+        offer_url = COALESCE($10, offer_url),
+        tracking_parameters = COALESCE($11, tracking_parameters),
+        postback_url = COALESCE($12, postback_url),
+        updated_at = CURRENT_TIMESTAMP
+       WHERE id = $13 AND admin_id = $14
+       RETURNING *`,
+      [
+        name ? name.trim() : null,
+        advertiser ? advertiser.trim() : null,
+        category ? category.trim() : null,
+        status,
+        payout_type ? payout_type.trim() : null,
+        payout_amount !== null && payout_amount !== undefined && payout_amount !== "" ? parseFloat(payout_amount) : null,
+        currency,
+        conversion_event ? conversion_event.trim() : null,
+        sale_percentage !== null && sale_percentage !== undefined && sale_percentage !== "" ? parseFloat(sale_percentage) : null,
+        offer_url ? offer_url.trim() : null,
+        tracking_parameters ? JSON.stringify(tracking_parameters) : null,
+        postback_url ? postback_url.trim() : null,
+        id.trim(),
+        req.adminId,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Campaign not found or access denied" });
+    }
+
+    res.json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    console.error("Update campaign error:", err);
+    res.status(500).json({ success: false, error: "Failed to update campaign", details: err.message });
+  }
+});
+
+// Delete campaign (admin only)
+app.delete("/api/campaigns/:id", adminAuth, async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id || !id.trim()) {
+    return res.status(400).json({ success: false, error: "Campaign ID is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM campaigns WHERE id = $1 AND admin_id = $2 RETURNING *",
+      [id.trim(), req.adminId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Campaign not found or access denied" });
+    }
+    res.json({ success: true, message: "Campaign deleted successfully", data: result.rows[0] });
+  } catch (err) {
+    console.error("Delete campaign error:", err);
+    res.status(500).json({ success: false, error: "Failed to delete campaign", details: err.message });
+  }
+});
+
+// Get tracking link for campaign (admin only)
+app.get("/api/campaigns/:id/tracking-link", adminAuth, async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id || !id.trim()) {
+    return res.status(400).json({ success: false, error: "Campaign ID is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      "SELECT id, tracking_link FROM campaigns WHERE id = $1 AND admin_id = $2",
+      [id.trim(), req.adminId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Campaign not found" });
+    }
+    res.json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    console.error("Get tracking link error:", err);
+    res.status(500).json({ success: false, error: "Failed to fetch tracking link", details: err.message });
+  }
+});
+
+// Regenerate tracking link for campaign (admin only)
+app.post("/api/campaigns/:id/regenerate-tracking-link", adminAuth, async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id || !id.trim()) {
+    return res.status(400).json({ success: false, error: "Campaign ID is required" });
+  }
+
+  try {
+    // Generate new unique tracking link
+    let trackingLink;
+    let isUnique = false;
+    while (!isUnique) {
+      trackingLink = generateTrackingLink();
+      const existing = await pool.query("SELECT id FROM campaigns WHERE tracking_link = $1", [
+        trackingLink,
+      ]);
+      if (existing.rows.length === 0) {
+        isUnique = true;
+      }
+    }
+
+    const result = await pool.query(
+      "UPDATE campaigns SET tracking_link = $1 WHERE id = $2 AND admin_id = $3 RETURNING *",
+      [trackingLink, id.trim(), req.adminId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Campaign not found or access denied" });
+    }
+
+    res.json({ success: true, message: "Tracking link regenerated successfully", data: result.rows[0] });
+  } catch (err) {
+    console.error("Regenerate tracking link error:", err);
+    res.status(500).json({ success: false, error: "Failed to regenerate tracking link", details: err.message });
+  }
+});
+
+// Public tracking redirect endpoint - no authentication required
+app.get("/track/:trackingLink", async (req, res) => {
+  const { trackingLink } = req.params;
+  
+  if (!trackingLink || !trackingLink.trim()) {
+    return res.redirect(`/campaign-stopped?reason=invalid`);
+  }
+
+  try {
+    // Find campaign by tracking link
+    const result = await pool.query(
+      "SELECT id, offer_url, status FROM campaigns WHERE tracking_link = $1 LIMIT 1",
+      [trackingLink.trim()]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.redirect(`/campaign-stopped?reason=not_found`);
+    }
+
+    const campaign = result.rows[0];
+    
+    // Check if campaign is stopped or expired
+    if (campaign.status === "stop" || campaign.status === "expire") {
+      return res.redirect(`/campaign-stopped?reason=${campaign.status}`);
+    }
+    
+    // Optional: Log the click (for analytics)
+    try {
+      await pool.query(
+        "INSERT INTO campaign_clicks (campaign_id, user_agent, ip_address) VALUES ($1, $2, $3)",
+        [
+          campaign.id,
+          req.headers['user-agent'] || 'Unknown',
+          req.ip || req.connection.remoteAddress || 'Unknown'
+        ]
+      ).catch(() => {}); // Ignore if table doesn't exist
+    } catch (err) {
+      // Click logging is optional, don't fail if table missing
+    }
+
+    // Redirect to offer URL
+    res.redirect(campaign.offer_url);
+  } catch (err) {
+    console.error("Tracking redirect error:", err);
+    res.status(500).json({ error: "Failed to process tracking link" });
   }
 });
 

@@ -45,6 +45,30 @@ CREATE TABLE IF NOT EXISTS otp_verifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create campaigns table
+CREATE TABLE IF NOT EXISTS campaigns (
+    id SERIAL PRIMARY KEY,
+    admin_id INTEGER REFERENCES admins(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    advertiser VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'Stop', 'Expire')),
+    payout_type VARCHAR(10) NOT NULL CHECK (payout_type IN ('CPA', 'CPL', 'CPS')),
+    payout_amount DECIMAL(10,2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'USD',
+    conversion_event VARCHAR(50) NOT NULL,
+    sale_percentage DECIMAL(5,2),
+    offer_url TEXT NOT NULL,
+    tracking_parameters JSONB DEFAULT '{}',
+    postback_url TEXT,
+    tracking_link VARCHAR(255) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add tracking_link column to existing campaigns if needed
+ALTER TABLE IF EXISTS campaigns ADD COLUMN IF NOT EXISTS tracking_link VARCHAR(255) UNIQUE;
+
 -- Alter existing tables if they exist with old schema
 -- Note: Run these commands manually if tables already exist
 -- ALTER TABLE forms ALTER COLUMN id TYPE VARCHAR(10);

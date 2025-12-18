@@ -232,16 +232,24 @@
 }
 
 .dashboard-content {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
+  display: block;
+  width: 100%;
 }
 
 .forms-section {
   flex: 1;
-  min-width: 350px;
-  max-width: 1200px;
-  margin: 3rem auto 0 auto;
+  min-width: 100%;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+.campaigns-section {
+  flex: 1;
+  min-width: 100%;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .submissions-section {

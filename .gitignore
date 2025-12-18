@@ -90,3 +90,8 @@ coverage/
 # Temporary folders
 tmp/
 temp/
+# GitHub CLI files (not needed in repo)
+gh.zip
+LICENSE
+bin/
+gh/

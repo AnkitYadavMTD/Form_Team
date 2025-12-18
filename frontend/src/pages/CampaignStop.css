@@ -1,0 +1,86 @@
+.campaign-stopped-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 20px;
+}
+
+.stopped-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 3rem;
+  text-align: center;
+  max-width: 500px;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stopped-card .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.stopped-card h1 {
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.stopped-card p {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.provider-notice {
+  background: #f8f9fa;
+  border-left: 4px solid #667eea;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.provider-notice strong {
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .campaign-stopped-container {
+    padding: 10px;
+  }
+
+  .stopped-card {
+    padding: 2rem;
+  }
+
+  .stopped-card .icon {
+    font-size: 3rem;
+  }
+
+  .stopped-card h1 {
+    font-size: 1.5rem;
+  }
+
+  .stopped-card p {
+    font-size: 1rem;
+  }
+}
