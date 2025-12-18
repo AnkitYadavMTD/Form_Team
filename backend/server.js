@@ -1172,11 +1172,13 @@ app.post("/api/campaigns/:id/regenerate-tracking-link", adminAuth, async (req, r
 });
 
 // Public tracking redirect endpoint - no authentication required
-app.get("/track/:trackingLink", async (req, res) => {
-  const { trackingLink } = req.params;
-  
-  if (!trackingLink || !trackingLink.trim()) {
-    return res.redirect(`/campaign-stopped?reason=invalid`);
+app.get("/track*", async (req, res) => {
+  const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+  const path = req.path;
+  const trackingLink = path === '/track' ? '' : path.replace('/track/', '');
+
+  if (!trackingLink) {
+    return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=invalid`);
   }
 
   try {
@@ -1185,18 +1187,20 @@ app.get("/track/:trackingLink", async (req, res) => {
       "SELECT id, offer_url, status FROM campaigns WHERE tracking_link = $1 LIMIT 1",
       [trackingLink.trim()]
     );
-    
+
     if (result.rows.length === 0) {
-      return res.redirect(`/campaign-stopped?reason=not_found`);
+      return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=not_found`);
     }
 
     const campaign = result.rows[0];
-    
-    // Check if campaign is stopped or expired
-    if (campaign.status === "stop" || campaign.status === "expire") {
-      return res.redirect(`/campaign-stopped?reason=${campaign.status}`);
+
+    // Check if campaign is stopped or expired (case-insensitive)
+    const status = campaign.status.toLowerCase();
+    if (status === "stop" || status === "expire") {
+      const reason = status === "stop" ? "stop" : "expire";
+      return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=${reason}`);
     }
-    
+
     // Optional: Log the click (for analytics)
     try {
       await pool.query(

@@ -5,8 +5,8 @@
 - [ ] Rename CampaignStopped.jsx to CampaignStop.jsx
 - [ ] Rename CampaignStopped.css to CampaignStop.css
 - [ ] Update CampaignStop.jsx to display "Link is stopped contact provider for more details"
-- [ ] Update App.jsx route from "/campaign-stopped" to "/campaign-stop"
-- [ ] Update App.jsx import from CampaignStopped to CampaignStop
+- [x] Update App.jsx route from "/campaign-stopped" to "/campaign-stop"
+- [x] Update App.jsx import from CampaignStopped to CampaignStop
 - [ ] Update server.js status checks to "Stop" and "Expire"
 - [ ] Update server.js redirect URLs to "/campaign-stop"
 - [ ] Update test-status-redirects.js to use 'Stop', 'Expire', and '/campaign-stop'

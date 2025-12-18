@@ -7,13 +7,13 @@ function CampaignStop() {
 
   const getMessage = () => {
     switch (reason) {
-      case "Stop":
+      case "stop":
         return {
           title: "Link Stopped",
           message: "Link is stopped contact provider for more details",
           icon: "🛑",
         };
-      case "Expire":
+      case "expire":
         return {
           title: "Link Expired",
           message: "Link is stopped contact provider for more details",

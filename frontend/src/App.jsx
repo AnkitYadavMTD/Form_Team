@@ -52,7 +52,7 @@ function AppContent() {
   const isPublicForm = location.pathname.startsWith("/form/");
   const isAuthPage =
     location.pathname === "/signin" || location.pathname === "/signup";
-  const isCampaignStopPage = location.pathname === "/campaign-stopped";
+  const isCampaignStopPage = location.pathname === "/campaign-stop";
   const { isAuthenticated, loading, logout, admin } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -391,7 +391,7 @@ function AppContent() {
               }
             />
             <Route path="/form/:id" element={<PublicForm />} />
-            <Route path="/campaign-stopped" element={<CampaignStop />} />
+            <Route path="/campaign-stop" element={<CampaignStop />} />
             <Route
               path="/settings"
               element={

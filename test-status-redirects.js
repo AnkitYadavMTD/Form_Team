@@ -94,7 +94,7 @@ async function testStatusRedirects() {
         }
       });
 
-      if (stopResponse.status === 302 && stopResponse.headers.location.includes('/campaign-stop?reason=Stop')) {
+      if (stopResponse.status === 302 && stopResponse.headers.location.includes('/campaign-stop?reason=stop')) {
         console.log('✅ PASS: Stopped campaign redirects to campaign-stop page\n');
       } else {
         console.log(`❌ FAIL: Expected redirect to campaign-stop, got ${stopResponse.headers.location}\n`);
@@ -125,7 +125,7 @@ async function testStatusRedirects() {
         }
       });
 
-      if (expireResponse.status === 302 && expireResponse.headers.location.includes('/campaign-stop?reason=Expire')) {
+      if (expireResponse.status === 302 && expireResponse.headers.location.includes('/campaign-stop?reason=expire')) {
         console.log('✅ PASS: Expired campaign redirects to campaign-stop page\n');
       } else {
         console.log(`❌ FAIL: Expected redirect to campaign-stop, got ${expireResponse.headers.location}\n`);
