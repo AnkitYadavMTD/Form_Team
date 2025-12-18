@@ -11,5 +11,8 @@
       "src": "/(.*)",
       "dest": "server.js"
     }
-  ]
+  ],
+  "env": {
+    "FRONTEND_URL": "https://form-team-u8em.vercel.app"
+  }
 }
