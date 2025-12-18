@@ -1175,11 +1175,11 @@ app.post("/api/campaigns/:id/regenerate-tracking-link", adminAuth, async (req, r
 app.get("/track*", async (req, res) => {
   // More robust FRONTEND_URL handling with multiple fallbacks
   const FRONTEND_URL = process.env.FRONTEND_URL ||
-    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
-    process.env.RENDER_EXTERNAL_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.RENDER_EXTERNAL_URL) ||
     "http://localhost:5173";
 
   console.log(`🔗 Tracking redirect - FRONTEND_URL: ${FRONTEND_URL}`);
+  console.log(`🔗 Environment variables: FRONTEND_URL=${process.env.FRONTEND_URL}, VERCEL_URL=${process.env.VERCEL_URL}, RENDER_EXTERNAL_URL=${process.env.RENDER_EXTERNAL_URL}`);
 
   const path = req.path;
   const trackingLink = path === '/track' ? '' : path.replace('/track/', '');
