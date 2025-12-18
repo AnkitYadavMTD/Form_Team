@@ -125,7 +125,7 @@ async function testStatusRedirects() {
         }
       });
 
-      if (expireResponse.status === 302 && expireResponse.headers.location.includes('/campaign-stop?reason=stop')) {
+      if (expireResponse.status === 302 && expireResponse.headers.location.includes('/campaign-stop?reason=expire')) {
         console.log('✅ PASS: Expired campaign redirects to campaign-stop page\n');
       } else {
         console.log(`❌ FAIL: Expected redirect to campaign-stop, got ${expireResponse.headers.location}\n`);

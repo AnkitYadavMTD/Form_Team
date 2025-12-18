@@ -1173,7 +1173,7 @@ app.post("/api/campaigns/:id/regenerate-tracking-link", adminAuth, async (req, r
 
 // Public tracking redirect endpoint - no authentication required
 app.get("/track*", async (req, res) => {
-  const FRONTEND_URL = "https://form-team-u8em.vercel.app";
+  const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
   const path = req.path;
   const trackingLink = path === '/track' ? '' : path.replace('/track/', '');
 
@@ -1197,7 +1197,8 @@ app.get("/track*", async (req, res) => {
     // Check if campaign is stopped or expired (case-insensitive)
     const status = campaign.status.toLowerCase();
     if (status === "stop" || status === "expire") {
-      return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=stop`);
+      const reason = status === "stop" ? "stop" : "expire";
+      return res.redirect(`${FRONTEND_URL}/campaign-stop?reason=${reason}`);
     }
 
     // Optional: Log the click (for analytics)

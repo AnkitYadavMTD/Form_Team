@@ -37,10 +37,10 @@ async function testLiveRedirects() {
         }
       });
 
-      if (notFoundResponse.status === 302 && notFoundResponse.headers.location === `${FRONTEND_URL}/campaign-stopped?reason=not_found`) {
-        console.log('✅ PASS: Non-existent link redirects to campaign-stopped with reason=not_found\n');
+      if (notFoundResponse.status === 302 && notFoundResponse.headers.location === `${FRONTEND_URL}/campaign-stop?reason=not_found`) {
+        console.log('✅ PASS: Non-existent link redirects to campaign-stop with reason=not_found\n');
       } else {
-        console.log(`❌ FAIL: Expected redirect to ${FRONTEND_URL}/campaign-stopped?reason=not_found, got ${notFoundResponse.headers.location}\n`);
+        console.log(`❌ FAIL: Expected redirect to ${FRONTEND_URL}/campaign-stop?reason=not_found, got ${notFoundResponse.headers.location}\n`);
       }
     } catch (error) {
       console.log('❌ FAIL: Error testing non-existent link redirect\n', error.message);
