@@ -178,7 +178,7 @@ function CreateCampaign() {
         setMessage(
           isEditMode
             ? "Campaign updated successfully!"
-            : isDraft
+            : finalStatus === "draft"
             ? `Campaign saved as draft! Campaign ID: ${createdId ?? 'N/A'}`
             : `Campaign published successfully! Campaign ID: ${createdId ?? 'N/A'}`
         );
@@ -280,8 +280,8 @@ function CreateCampaign() {
           >
             <option value="draft">Draft</option>
             <option value="active">Active</option>
-            <option value="stop">Stop</option>
-            <option value="expire">Expire</option>
+            <option value="Stop">Stop</option>
+            <option value="Expire">Expire</option>
           </select>
         </div>
       </div>
