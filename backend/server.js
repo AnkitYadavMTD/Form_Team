@@ -1172,7 +1172,8 @@ app.post("/api/campaigns/:id/regenerate-tracking-link", adminAuth, async (req, r
 });
 
 // Public tracking redirect endpoint - no authentication required
-app.get("/track/:trackingLink", async (req, res) => {
+app.get("/api/track/:trackingLink", async (req, res) => {
+
   const FRONTEND_URL =
     process.env.FRONTEND_URL ||
     (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ||
